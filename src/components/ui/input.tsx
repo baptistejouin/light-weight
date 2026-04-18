@@ -1,4 +1,5 @@
-import { splitProps, type JSX } from "solid-js";
+import { type JSX, splitProps } from "solid-js";
+import { cn } from "~/lib/utils";
 
 interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   name: string;
@@ -6,15 +7,22 @@ interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   children?: JSX.Element;
 }
 export function Input(props: InputProps) {
-  const [local, rest] = splitProps(props, ["children", "name", "defaultValue"]);
+  const [local, rest] = splitProps(props, [
+    "children",
+    "name",
+    "defaultValue",
+    "class",
+  ]);
   return (
     <div class="flex flex-col">
       <label for={`form-${local.name}`}>{local.name}</label>
       <input
         id={`form-${local.name}`}
         name={local.name}
-        // TODO: add class merge
-        class="p-1 border border-blue-400 h-8 outline-none focus-within:bg-blue-50 focus-within:border-blue-500 transition-all"
+        class={cn(
+          "rounded-full py-3 px-3 outline outline-primary focus-within:bg-primary/5 m-0 focus-within:outline-primary transition-all",
+          local.class,
+        )}
         value={local.defaultValue || ""}
         {...rest}
       />

@@ -5,6 +5,9 @@ dist
 .netlify
 .vinxi
 app.config.timestamp_*.js
+/.nitro
+drizzle/migrations/meta
+db.sqlite
 
 # Environment
 .env

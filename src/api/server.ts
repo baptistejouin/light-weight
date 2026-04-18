@@ -12,8 +12,8 @@ function validateUsername(username: unknown) {
 }
 
 function validatePassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 6) {
-    return `Passwords must be at least 6 characters long`;
+  if (typeof password !== "string" || password.length < 3) {
+    return `Passwords must be at least 3 characters long`;
   }
 }
 
@@ -40,8 +40,7 @@ async function login(username: string, password: string) {
 
 function getSession() {
   return useSession({
-    password:
-      process.env.SESSION_SECRET ?? "areallylongsecretthatyoushouldreplace",
+    password: import.meta.env.SESSION_SECRET,
   });
 }
 
