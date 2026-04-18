@@ -6,6 +6,7 @@ import { CalendarIcon } from "~/components/icons/icon-calendar";
 import WeightIcon from "~/components/icons/kilo-icon";
 import { Calendar } from "~/components/pages/index/calendar";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from "~/components/ui/dialog";
 import { SegmentedControl } from "~/components/ui/segmented-control";
 
 export const route = {
@@ -24,6 +25,7 @@ export default function Home() {
   const today = Temporal.Now.plainDateISO();
 
   const [timeScale, setTimeScale] = createSignal("month");
+  const [dialogOpen, setDialogOpen] = createSignal(false);
 
   const activityHistoryFake = [
     today.subtract({ days: 3 }),
@@ -57,9 +59,23 @@ export default function Home() {
         <Calendar activityHistory={activityHistoryFake} />
       </div>
       <div class="justify-end gap-2 flex flex-1 flex-col">
-        <Button class="w-full" name="logout" type="submit">
+        <Button class="w-full" type="button" onClick={() => setDialogOpen(true)}>
           New Record
         </Button>
+        <Dialog
+          open={dialogOpen()}
+          onClose={() => setDialogOpen(false)}
+          aria-labelledby="dialog-title"
+        >
+          <DialogHeader onClose={() => setDialogOpen(false)}>New Record</DialogHeader>
+          <DialogContent>Log a new workout activity for today.</DialogContent>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setDialogOpen(false)}>Save</Button>
+          </DialogFooter>
+        </Dialog>
         <Button
           class="w-full"
           name="logout"
