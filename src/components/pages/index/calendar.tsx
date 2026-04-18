@@ -30,18 +30,18 @@ export function Calendar({ activityHistory }: CalendarProps) {
   );
 
   return (
-    <table class="text-sm min-w-50">
-      <thead>
-        <tr>
+    <table class="text-sm w-full min-w-50 flex flex-col table-fixed">
+      <thead class="flex-1 flex">
+        <tr class="flex-1 flex">
           <For each={cols}>
-            {(col) => <th class="p-2 text-muted-foreground">{col}</th>}
+            {(col) => <th class="flex-1 p-2 text-muted-foreground">{col}</th>}
           </For>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="flex flex-col flex-1">
         <For each={weeks}>
           {(week) => (
-            <tr>
+            <tr class="flex flex-1">
               <For each={week}>
                 {(day) => {
                   const isToday = day === today.day;
@@ -49,14 +49,14 @@ export function Calendar({ activityHistory }: CalendarProps) {
                     day !== null ? (activityCountsByDay.get(day) ?? 0) : 0;
                   const isActivity = activityCount > 0;
                   return (
-                    <td class="p-1 size-10 m-0.5">
+                    <td class="p-1 flex-1 flex">
                       <div
                         class={cn(
-                          "text-gray-500 inline-flex justify-center items-center rounded-md size-full",
+                          "text-gray-500 inline-flex justify-center items-center rounded-md w-full aspect-square",
                           {
                             "bg-gray-100": day,
                             "bg-green-300": isActivity,
-                            "bg-gray-300 border-gray-400 border-2": isToday,
+                            "bg-gray-300 text-black border-dashed border-black border-2": isToday,
                           },
                         )}
                       >
