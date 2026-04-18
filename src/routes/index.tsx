@@ -1,11 +1,12 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { RouteDefinition } from "@solidjs/router";
+import { createSignal } from "solid-js";
 import { getUser, logout } from "~/api";
 import { CalendarIcon } from "~/components/icons/icon-calendar";
 import WeightIcon from "~/components/icons/kilo-icon";
-import { Layout } from "~/components/layout";
 import { Calendar } from "~/components/pages/index/calendar";
 import { Button } from "~/components/ui/button";
+import { SegmentedControl } from "~/components/ui/segmented-control";
 
 export const route = {
   preload() {
@@ -14,7 +15,16 @@ export const route = {
 } satisfies RouteDefinition;
 
 export default function Home() {
+  const timeScaleValues = [
+    { label: "Week", value: "week" },
+    { label: "Month", value: "month" },
+    { label: "Year", value: "year" },
+    { label: "All", value: "all" },
+  ];
   const today = Temporal.Now.plainDateISO();
+
+  const [timeScale, setTimeScale] = createSignal("month");
+
   const activityHistoryFake = [
     today.subtract({ days: 3 }),
     today.subtract({ days: 5 }),
@@ -24,18 +34,15 @@ export default function Home() {
 
   return (
     <div class="mb-12 flex-1 flex flex-col gap-6">
-      <div>
-        <h2 class="font-bold text-2xl capitalize border-b pb-2 mb-4 border-gray-200">
-          <span
-            class="text-5xl
-    text-green-500"
-          >
-            12
-          </span>{" "}
-          session this Month
-        </h2>
-        <h3 class="font-bold text-2xl text-gray-400 mb-4">
-          The last session was
+      <div class="flex flex-col gap-2">
+        <h2 class="font-bold text-5xl capitalize pb-2">Activities</h2>
+        <SegmentedControl
+          items={timeScaleValues}
+          value={timeScale()}
+          onChange={setTimeScale}
+        />
+        <h3 class="font-bold text-2xl text-gray-400 mt-6">
+          Your last workout was
           <span class="text-black">
             {" "}
             <WeightIcon /> Leg day
