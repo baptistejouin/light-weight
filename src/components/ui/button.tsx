@@ -13,9 +13,9 @@ export function Button(props: ButtonProps) {
     <button
       {...rest}
       class={cn(
-        "capitalize cursor-pointer px-6 inline py-3 rounded-full",
+        "inline cursor-pointer rounded-full px-6 py-3 capitalize",
         local.variant === "secondary"
-          ? "bg-white border border-primary text-primary"
+          ? "border border-primary bg-white text-primary"
           : "bg-primary text-white",
         local.class,
       )}

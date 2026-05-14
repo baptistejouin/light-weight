@@ -8,7 +8,7 @@ export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(validateAndLogin);
 
   return (
-    <form action={validateAndLogin} method="post" class="flex gap-2 flex-col">
+    <form action={validateAndLogin} method="post" class="flex flex-col gap-2">
       <input
         type="hidden"
         name="redirectTo"

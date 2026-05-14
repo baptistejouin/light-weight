@@ -20,7 +20,7 @@ export function Input(props: InputProps) {
         id={`form-${local.name}`}
         name={local.name}
         class={cn(
-          "rounded-full py-3 px-3 outline outline-primary focus-within:bg-primary/5 m-0 focus-within:outline-primary transition-all",
+          "m-0 rounded-full px-3 py-3 outline outline-primary transition-all focus-within:bg-primary/5 focus-within:outline-primary",
           local.class,
         )}
         value={local.defaultValue || ""}

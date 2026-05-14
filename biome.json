@@ -1,13 +1,13 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false,
-    "includes": ["**/*", "!!**/.nitro"]
+    "ignoreUnknown": true,
+    "includes": ["**", "!node_modules", "!.nitro", "!dist", "!build", "!tests"]
   },
   "formatter": {
     "enabled": true,
@@ -20,7 +20,13 @@
       "recommended": true,
       "performance": {
         "useSolidForComponent": "error"
+      },
+      "nursery": {
+        "useSortedClasses": "error"
       }
+    },
+    "domains": {
+      "solid": "recommended"
     }
   },
   "javascript": {

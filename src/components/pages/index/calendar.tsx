@@ -30,15 +30,15 @@ export function Calendar({ activityHistory }: CalendarProps) {
   );
 
   return (
-    <table class="text-sm w-full min-w-50 flex flex-col table-fixed">
-      <thead class="flex-1 flex">
-        <tr class="flex-1 flex">
+    <table class="flex w-full min-w-50 table-fixed flex-col text-sm">
+      <thead class="flex flex-1">
+        <tr class="flex flex-1">
           <For each={cols}>
             {(col) => <th class="flex-1 p-2 text-muted-foreground">{col}</th>}
           </For>
         </tr>
       </thead>
-      <tbody class="flex flex-col flex-1">
+      <tbody class="flex flex-1 flex-col">
         <For each={weeks}>
           {(week) => (
             <tr class="flex flex-1">
@@ -49,19 +49,20 @@ export function Calendar({ activityHistory }: CalendarProps) {
                     day !== null ? (activityCountsByDay.get(day) ?? 0) : 0;
                   const isActivity = activityCount > 0;
                   return (
-                    <td class="p-1 flex-1 flex">
+                    <td class="flex flex-1 p-1 text-xl">
                       <div
                         class={cn(
-                          "text-gray-500 inline-flex justify-center items-center rounded-md w-full aspect-square",
+                          "inline-flex aspect-square w-full items-center justify-center rounded-md text-gray-500",
                           {
                             "bg-gray-100": day,
                             "bg-green-300": isActivity,
-                            "bg-gray-300 text-black border-dashed border-black border-2": isToday,
+                            "border-2 border-black border-dashed bg-gray-300 text-black":
+                              isToday,
                           },
                         )}
                       >
                         {isActivity && (
-                          <span class="text-green-800 font-semibold tabular-nums">
+                          <span class="font-semibold text-green-800 tabular-nums">
                             {activityCount}
                           </span>
                         )}

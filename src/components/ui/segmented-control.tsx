@@ -19,20 +19,22 @@ export function SegmentedControl<T extends string>(
   return (
     <div
       class={cn(
-        "flex items-center rounded-lg bg-gray-100 p-1 gap-0.5 w-full",
+        "flex w-full items-center gap-0.5 rounded-lg bg-gray-100 p-1",
         props.class,
       )}
     >
       <For each={props.items}>
         {(item, index) => (
           <>
-            {index() > 0 && props.value !== item.value && props.items[index() - 1].value !== props.value && (
-              <div class="w-px h-4 bg-gray-300 shrink-0" />
-            )}
+            {index() > 0 &&
+              props.value !== item.value &&
+              props.items[index() - 1].value !== props.value && (
+                <div class="h-4 w-px shrink-0 bg-gray-300" />
+              )}
             <button
               onClick={() => props.onChange(item.value)}
               class={cn(
-                "flex-1 px-4 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer",
+                "flex-1 cursor-pointer rounded-md px-4 py-1.5 font-medium text-sm transition-colors",
                 props.value === item.value
                   ? "bg-white text-black shadow-sm"
                   : "text-gray-400 hover:text-gray-600",

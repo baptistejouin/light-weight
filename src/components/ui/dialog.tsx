@@ -1,4 +1,4 @@
-import { type JSX, createEffect, splitProps } from "solid-js";
+import { createEffect, type JSX, splitProps } from "solid-js";
 import { cn } from "~/lib/utils";
 
 interface DialogProps {
@@ -27,6 +27,7 @@ export function Dialog(props: DialogProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: dialog support natively escape
     <dialog
       ref={ref}
       onClose={props.onClose}
@@ -39,7 +40,7 @@ export function Dialog(props: DialogProps) {
         "w-full max-w-sm rounded-2xl p-0 shadow-xl",
         "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
         "backdrop:bg-black/40 backdrop:backdrop-blur-sm",
-        "open:animate-in open:fade-in open:slide-in-from-bottom-4",
+        "open:fade-in open:slide-in-from-bottom-4 open:animate-in",
         props.class,
       )}
     >
@@ -59,9 +60,12 @@ export function DialogHeader(props: DialogHeaderProps) {
   return (
     <div
       {...rest}
-      class={cn("flex items-center justify-between px-5 pt-5 pb-3", local.class)}
+      class={cn(
+        "flex items-center justify-between px-5 pt-5 pb-3",
+        local.class,
+      )}
     >
-      <h2 id="dialog-title" class="text-base font-semibold">
+      <h2 id="dialog-title" class="font-semibold text-base">
         {local.children}
       </h2>
       {local.onClose && (
@@ -69,7 +73,7 @@ export function DialogHeader(props: DialogHeaderProps) {
           type="button"
           onClick={local.onClose}
           aria-label="Close dialog"
-          class="rounded-full p-1 -mr-1 cursor-pointer hover:bg-black/5 transition-colors"
+          class="-mr-1 cursor-pointer rounded-full p-1 transition-colors hover:bg-black/5"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +103,7 @@ interface DialogContentProps {
 
 export function DialogContent(props: DialogContentProps) {
   return (
-    <div class={cn("px-5 py-2 text-sm text-black/70", props.class)}>
+    <div class={cn("px-5 py-2 text-black/70 text-sm", props.class)}>
       {props.children}
     </div>
   );

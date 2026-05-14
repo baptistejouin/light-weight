@@ -7,5 +7,7 @@ interface LayoutProps {
 
 export function Layout(props: LayoutProps) {
   const resolved = children(() => props.children);
-  return <main class="px-4 h-svh flex flex-col max-w-sm mx-auto">{resolved()}</main>;
+  return (
+    <main class="mx-auto flex h-svh max-w-sm flex-col px-4">{resolved()}</main>
+  );
 }
