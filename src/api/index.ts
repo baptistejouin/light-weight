@@ -1,17 +1,21 @@
 import { action, query } from "@solidjs/router";
-import * as server from "./auth";
+import * as auth from "./auth";
+import * as exercises from "./exercises";
 
 // Create a registry of queries
 const queries = {
-  getUser: query(server.getUser, "user"),
+  getUser: query(auth.getUser, "user"),
+  getExercise: query(exercises.getExercise, "exercise"),
+  getExercises: query(exercises.getExercises, "exercises"),
 };
 
 // Create a registry of actions
 const actions = {
-  validateAndLogin: action(server.validateAndLogin, "validateAndLogin"),
-  logout: action(server.logout, "logout"),
+  validateAndLogin: action(auth.validateAndLogin, "validateAndLogin"),
+  logout: action(auth.logout, "logout"),
+  createExercises: action(exercises.createExercises, "createExercises"),
 };
 
 // Export everything from the registries
-export const { getUser } = queries;
-export const { validateAndLogin, logout } = actions;
+export const { getUser, getExercise, getExercises } = queries;
+export const { validateAndLogin, logout, createExercises } = actions;

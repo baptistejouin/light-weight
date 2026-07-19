@@ -25,6 +25,7 @@ export default function Navigation() {
       <ul class="flex gap-2">
         <NavigationItem href="/">Home</NavigationItem>
         <NavigationItem href="/history">History</NavigationItem>
+        <NavigationItem href="/exercise">Exercise</NavigationItem>
       </ul>
     </nav>
   );
