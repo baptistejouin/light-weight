@@ -1,5 +1,5 @@
 import { type JSX, splitProps } from "solid-js";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   name: string;

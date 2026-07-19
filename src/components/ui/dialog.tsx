@@ -1,5 +1,5 @@
 import { createEffect, type JSX, splitProps } from "solid-js";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface DialogProps {
   open: boolean;

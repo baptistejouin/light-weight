@@ -1,8 +1,8 @@
 import { type RouteSectionProps, useSubmission } from "@solidjs/router";
 import { Show } from "solid-js";
-import { validateAndLogin } from "~/api";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { validateAndLogin } from "@/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(validateAndLogin);

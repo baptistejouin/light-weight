@@ -1,5 +1,5 @@
 import { action, query } from "@solidjs/router";
-import * as server from "./server";
+import * as server from "./auth";
 
 // Create a registry of queries
 const queries = {

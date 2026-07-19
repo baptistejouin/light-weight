@@ -1,18 +1,18 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { RouteDefinition } from "@solidjs/router";
 import { createSignal } from "solid-js";
-import { getUser, logout } from "~/api";
-import { CalendarIcon } from "~/components/icons/icon-calendar";
-import WeightIcon from "~/components/icons/kilo-icon";
-import { Calendar } from "~/components/pages/index/calendar";
-import { Button } from "~/components/ui/button";
+import { getUser, logout } from "@/api";
+import { CalendarIcon } from "@/components/icons/icon-calendar";
+import WeightIcon from "@/components/icons/kilo-icon";
+import { Calendar } from "@/components/pages/index/calendar";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-} from "~/components/ui/dialog";
-import { SegmentedControl } from "~/components/ui/segmented-control";
+} from "@/components/ui/dialog";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 
 export const route = {
   preload() {

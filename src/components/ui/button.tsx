@@ -1,6 +1,6 @@
 import type { JSX } from "solid-js";
 import { splitProps } from "solid-js";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
   children: JSX.Element;

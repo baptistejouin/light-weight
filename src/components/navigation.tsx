@@ -1,6 +1,6 @@
 import { useLocation } from "@solidjs/router";
 import type { JSX } from "solid-js/jsx-runtime";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface NavigationItemProps {
   href: string;

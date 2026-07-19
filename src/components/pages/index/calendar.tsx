@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { For } from "solid-js";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface CalendarProps {
   activityHistory: Temporal.PlainDate[];

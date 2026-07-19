@@ -2,8 +2,8 @@
 import { redirect } from "@solidjs/router";
 import { useSession } from "@solidjs/start/http";
 import { eq } from "drizzle-orm";
-import { Users } from "../../drizzle/schema";
-import { db } from "./db";
+import { Users } from "@drizzle/schema";
+import { db } from "@/api/db";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {

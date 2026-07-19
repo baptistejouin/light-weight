@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { cn } from "~/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface SegmentedControlItem<T extends string> {
   label: string;
@@ -32,6 +32,7 @@ export function SegmentedControl<T extends string>(
                 <div class="h-4 w-px shrink-0 bg-gray-300" />
               )}
             <button
+              type="button"
               onClick={() => props.onChange(item.value)}
               class={cn(
                 "flex-1 cursor-pointer rounded-md px-4 py-1.5 font-medium text-sm transition-colors",
