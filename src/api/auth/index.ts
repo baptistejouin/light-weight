@@ -1,20 +1,15 @@
 "use server";
+import { Users } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
 import { useSession } from "@solidjs/start/http";
 import { eq } from "drizzle-orm";
-import { Users } from "@drizzle/schema";
+import { z } from "zod";
 import { db } from "@/api/db";
 
-function validateUsername(username: unknown) {
-  if (typeof username !== "string" || username.length < 3) {
-    return `Usernames must be at least 3 characters long`;
-  }
-}
-
-function validatePassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 3) {
-    return `Passwords must be at least 3 characters long`;
-  }
+function getSession() {
+  return useSession({
+    password: import.meta.env.SESSION_SECRET,
+  });
 }
 
 async function login(username: string, password: string) {
@@ -27,31 +22,20 @@ async function login(username: string, password: string) {
   return user;
 }
 
-// async function register(username: string, password: string) {
-//   const existingUser = db
-//     .select()
-//     .from(Users)
-//     .where(eq(Users.username, username))
-//     .get();
-//   if (existingUser) throw new Error("User already exists");
-//   return db.insert(Users).values({ username, password }).returning().get();
-// }
-//
-
-function getSession() {
-  return useSession({
-    password: import.meta.env.SESSION_SECRET,
-  });
-}
-
 export async function validateAndLogin(formData: FormData) {
-  const username = String(formData.get("username"));
-  const password = String(formData.get("password"));
-  const error = validateUsername(username) || validatePassword(password);
-  if (error) return new Error(error);
+  const loginSchema = z.object({
+    username: z.string().min(3).max(25),
+    password: z.string().min(3).max(25),
+  });
+
+  const formDataObj = Object.fromEntries(formData.entries());
+
+  const { data, error } = loginSchema.safeParse(formDataObj);
+
+  if (error) return new Error(error.message);
 
   try {
-    const user = await login(username, password);
+    const user = await login(data.username, data.password);
     const session = await getSession();
 
     await session.update((d) => {
