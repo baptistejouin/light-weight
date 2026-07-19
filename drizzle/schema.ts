@@ -1,5 +1,11 @@
 import { relations } from "drizzle-orm";
-import { integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+} from "drizzle-orm/sqlite-core";
 
 export const Users = sqliteTable("users", {
   id: text("id")
@@ -94,20 +100,23 @@ export const WorkoutHistory = sqliteTable("workout_history", {
 });
 
 // Each exercise done within a session
-export const WorkoutSessionExercises = sqliteTable("workout_session_exercises", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID())
-    .notNull(),
-  historyId: text("history_id")
-    .notNull()
-    .references(() => WorkoutHistory.id),
-  exerciseId: text("exercise_id")
-    .notNull()
-    .references(() => Exercises.id),
-  order: integer("order").notNull().default(0),
-  notes: text("notes"),
-});
+export const WorkoutSessionExercises = sqliteTable(
+  "workout_session_exercises",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID())
+      .notNull(),
+    historyId: text("history_id")
+      .notNull()
+      .references(() => WorkoutHistory.id),
+    exerciseId: text("exercise_id")
+      .notNull()
+      .references(() => Exercises.id),
+    order: integer("order").notNull().default(0),
+    notes: text("notes"),
+  },
+);
 
 // Each set within a session exercise (actual performance)
 export const WorkoutSessionSets = sqliteTable("workout_session_sets", {
@@ -119,10 +128,10 @@ export const WorkoutSessionSets = sqliteTable("workout_session_sets", {
     .notNull()
     .references(() => WorkoutSessionExercises.id),
   setNumber: integer("set_number").notNull(),
-  reps: integer("reps"),         // strength
-  weight: real("weight"),        // kg, strength
+  reps: integer("reps"), // strength
+  weight: real("weight"), // kg, strength
   duration: integer("duration"), // seconds, cardio/timed
-  distance: real("distance"),    // meters, cardio
+  distance: real("distance"), // meters, cardio
 });
 
 // Relations
@@ -142,26 +151,56 @@ export const ExercisesRelations = relations(Exercises, ({ many }) => ({
   sessionExercises: many(WorkoutSessionExercises),
 }));
 
-export const WorkoutExercisesRelations = relations(WorkoutExercises, ({ one }) => ({
-  workout: one(Workouts, { fields: [WorkoutExercises.workoutId], references: [Workouts.id] }),
-  exercise: one(Exercises, { fields: [WorkoutExercises.exerciseId], references: [Exercises.id] }),
-}));
-
-export const WorkoutHistoryRelations = relations(WorkoutHistory, ({ one, many }) => ({
-  user: one(Users, { fields: [WorkoutHistory.userId], references: [Users.id] }),
-  workout: one(Workouts, { fields: [WorkoutHistory.workoutId], references: [Workouts.id] }),
-  sessionExercises: many(WorkoutSessionExercises),
-}));
-
-export const WorkoutSessionExercisesRelations = relations(WorkoutSessionExercises, ({ one, many }) => ({
-  history: one(WorkoutHistory, { fields: [WorkoutSessionExercises.historyId], references: [WorkoutHistory.id] }),
-  exercise: one(Exercises, { fields: [WorkoutSessionExercises.exerciseId], references: [Exercises.id] }),
-  sets: many(WorkoutSessionSets),
-}));
-
-export const WorkoutSessionSetsRelations = relations(WorkoutSessionSets, ({ one }) => ({
-  sessionExercise: one(WorkoutSessionExercises, {
-    fields: [WorkoutSessionSets.sessionExerciseId],
-    references: [WorkoutSessionExercises.id],
+export const WorkoutExercisesRelations = relations(
+  WorkoutExercises,
+  ({ one }) => ({
+    workout: one(Workouts, {
+      fields: [WorkoutExercises.workoutId],
+      references: [Workouts.id],
+    }),
+    exercise: one(Exercises, {
+      fields: [WorkoutExercises.exerciseId],
+      references: [Exercises.id],
+    }),
   }),
-}));
+);
+
+export const WorkoutHistoryRelations = relations(
+  WorkoutHistory,
+  ({ one, many }) => ({
+    user: one(Users, {
+      fields: [WorkoutHistory.userId],
+      references: [Users.id],
+    }),
+    workout: one(Workouts, {
+      fields: [WorkoutHistory.workoutId],
+      references: [Workouts.id],
+    }),
+    sessionExercises: many(WorkoutSessionExercises),
+  }),
+);
+
+export const WorkoutSessionExercisesRelations = relations(
+  WorkoutSessionExercises,
+  ({ one, many }) => ({
+    history: one(WorkoutHistory, {
+      fields: [WorkoutSessionExercises.historyId],
+      references: [WorkoutHistory.id],
+    }),
+    exercise: one(Exercises, {
+      fields: [WorkoutSessionExercises.exerciseId],
+      references: [Exercises.id],
+    }),
+    sets: many(WorkoutSessionSets),
+  }),
+);
+
+export const WorkoutSessionSetsRelations = relations(
+  WorkoutSessionSets,
+  ({ one }) => ({
+    sessionExercise: one(WorkoutSessionExercises, {
+      fields: [WorkoutSessionSets.sessionExerciseId],
+      references: [WorkoutSessionExercises.id],
+    }),
+  }),
+);
