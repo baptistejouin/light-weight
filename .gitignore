@@ -7,6 +7,7 @@ dist
 app.config.timestamp_*.js
 /.nitro
 drizzle/migrations/meta
+drizzle/db.sqlite
 
 # Environment
 .env
