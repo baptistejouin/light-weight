@@ -21,7 +21,7 @@ export default function Navigation() {
               <a
                 href={item.href}
                 class={cn(
-                  "flex justify-center py-4 text-sm transition-colors",
+                  "flex h-nav items-center justify-center text-sm transition-colors",
                   item.href === location.pathname
                     ? "font-semibold text-primary"
                     : "text-gray-400 hover:text-gray-600",

@@ -6,4 +6,5 @@
 @theme {
   --font-sans: "Varela Round", sans-serif;
   --color-primary: #000;
+  --spacing-nav: 3.5rem;
 }
