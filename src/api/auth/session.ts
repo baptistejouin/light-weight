@@ -5,7 +5,8 @@ export function getSession() {
   const password = process.env.SESSION_SECRET;
   if (!password) throw new Error("Missing SESSION_SECRET env var");
 
-  return useSession({ password });
+  // Secure cookies are dropped over http (e.g. LAN testing), so only in prod
+  return useSession({ password, cookie: { secure: import.meta.env.PROD } });
 }
 
 export async function getSessionUserId() {
