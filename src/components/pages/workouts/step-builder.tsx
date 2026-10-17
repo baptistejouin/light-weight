@@ -6,11 +6,10 @@ import { cn } from "@/lib/utils";
 interface StepBuilderProps {
   steps: Step[];
   onChange: (steps: Step[]) => void;
-  exercises: Exercise[];
+  exercises?: Exercise[];
   restExercise?: Exercise;
 }
 
-// Lets the user build an ordered list of exercise/rest steps
 export function StepBuilder(props: StepBuilderProps) {
   function addStep(exercise: Exercise) {
     props.onChange([

@@ -8,7 +8,7 @@ interface SelectOption {
 
 interface SelectProps extends JSX.SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
-  displayName?: string;
+  label: string;
   options: SelectOption[];
   defaultValue?: string;
 }
@@ -16,7 +16,7 @@ interface SelectProps extends JSX.SelectHTMLAttributes<HTMLSelectElement> {
 export function Select(props: SelectProps) {
   const [local, rest] = splitProps(props, [
     "name",
-    "displayName",
+    "label",
     "options",
     "defaultValue",
     "class",
@@ -24,9 +24,7 @@ export function Select(props: SelectProps) {
 
   return (
     <div class="flex flex-col">
-      <label for={`form-${local.name}`}>
-        {local.displayName ?? local.name}
-      </label>
+      <label for={`form-${local.name}`}>{local.label}</label>
       <select
         id={`form-${local.name}`}
         name={local.name}

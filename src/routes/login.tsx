@@ -14,8 +14,8 @@ export default function Login(props: RouteSectionProps) {
         name="redirectTo"
         value={props.params.redirectTo ?? "/"}
       />
-      <Input name="username" />
-      <Input name="password" />
+      <Input name="username" label="Username" />
+      <Input name="password" label="Password" type="password" />
       <Button type="submit">Login</Button>
       <Show when={loggingIn.result}>
         <p class="text-red-400" role="alert" id="error-message">

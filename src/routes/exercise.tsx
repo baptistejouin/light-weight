@@ -36,10 +36,11 @@ export default function Exercise() {
         title="New Exercise"
         onSubmit={createExercise}
       >
-        <Input name="name" required />
-        <Input name="description" />
+        <Input name="name" label="Name" required />
+        <Input name="description" label="Description" />
         <Select
           name="type"
+          label="Type"
           defaultValue="strength"
           options={[
             { label: "Strength", value: "strength" },

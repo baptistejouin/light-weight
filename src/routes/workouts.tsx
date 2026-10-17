@@ -26,7 +26,7 @@ export const route = {
 
 export default function WorkoutsPage() {
   const workouts = createAsync(() => getWorkouts());
-  const exercises = createAsync(() => getExercises(), { initialValue: [] });
+  const exercises = createAsync(() => getExercises());
   const restExercise = createAsync(() => getOrCreateRestExercise());
 
   const submitWorkout = useAction(createWorkout);
@@ -73,8 +73,8 @@ export default function WorkoutsPage() {
         title="New Workout"
         onSubmit={handleSubmit}
       >
-        <Input name="name" required />
-        <Input name="description" />
+        <Input name="name" label="Name" required />
+        <Input name="description" label="Description" />
         <StepBuilder
           steps={steps()}
           onChange={setSteps}

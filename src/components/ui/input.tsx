@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   name: string;
-  displayName?: string;
+  label: string;
   defaultValue?: string | number;
   children?: JSX.Element;
 }
@@ -11,15 +11,13 @@ export function Input(props: InputProps) {
   const [local, rest] = splitProps(props, [
     "children",
     "name",
-    "displayName",
+    "label",
     "defaultValue",
     "class",
   ]);
   return (
     <div class="flex flex-col">
-      <label for={`form-${local.name}`}>
-        {local.displayName ?? local.name}
-      </label>
+      <label for={`form-${local.name}`}>{local.label}</label>
       <input
         id={`form-${local.name}`}
         name={local.name}
