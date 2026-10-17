@@ -8,7 +8,10 @@ This project is volontary mobile first and will be a PWA
 ```bash
 pnpm i
 pnpm run dev
+pnpm studio
 ```
+
+Web UI available at `https://local.drizzle.studio` for the database at `./drizzle/db.sqlite`
 
 ## TODOs
 - [ ] db design
