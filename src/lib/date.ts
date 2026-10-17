@@ -8,7 +8,6 @@ export function toPlainDate(date: Date) {
   });
 }
 
-// Current local time in the format expected by <input type="datetime-local">
 export function nowForDatetimeLocal() {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -23,4 +22,13 @@ export function formatDate(value: Date | string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+const relativeDays = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+export function formatDaysAgo(value: Date | string) {
+  const days = toPlainDate(new Date(value)).until(
+    Temporal.Now.plainDateISO(),
+  ).days;
+  return relativeDays.format(-days, "day");
 }

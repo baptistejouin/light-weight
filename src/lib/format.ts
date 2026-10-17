@@ -1,3 +1,11 @@
+export function recordName(record: {
+  title: string | null;
+  exerciseName: string | null;
+  workoutName: string | null;
+}) {
+  return record.title || record.exerciseName || record.workoutName;
+}
+
 export function formatDuration(seconds: number | null) {
   if (!seconds) return null;
   const minutes = Math.round(seconds / 60);
