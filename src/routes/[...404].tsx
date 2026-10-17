@@ -1,6 +1,6 @@
 export default function NotFound() {
   return (
-    <div class="w-full space-y-2 overscroll-none p-4">
+    <div class="w-full space-y-2 p-4">
       <h1 class="font-bold text-xl">Page Not Found</h1>
     </div>
   );
