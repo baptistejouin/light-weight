@@ -1,6 +1,6 @@
 import type { JSX } from "solid-js";
 
-export default function WeightIcon(props: JSX.IntrinsicElements["svg"]) {
+export function WeightIcon(props: JSX.IntrinsicElements["svg"]) {
   return (
     // Icon from Pixel free icons by Streamline - https://creativecommons.org/licenses/by/4.0/
     <svg
