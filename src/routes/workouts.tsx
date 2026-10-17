@@ -1,5 +1,5 @@
 import { createAsync, type RouteDefinition, useAction } from "@solidjs/router";
-import { createSignal, For } from "solid-js";
+import { createSignal } from "solid-js";
 import {
   createWorkout,
   getExercises,
@@ -10,7 +10,8 @@ import {
 import { StepBuilder } from "@/components/pages/workouts/step-builder";
 import type { Step } from "@/components/pages/workouts/step-row";
 import { WorkoutCard } from "@/components/pages/workouts/workout-card";
-import { QueryBoundary } from "@/components/ui/error-message";
+import { CardList } from "@/components/ui/card-list";
+import { FloatingButton } from "@/components/ui/floating-button";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
@@ -59,14 +60,11 @@ export default function WorkoutsPage() {
 
   return (
     <div class="flex flex-1 flex-col gap-4">
-      <PageHeader title="Workouts" onNew={openDialog} />
-      <QueryBoundary>
-        <ul class="flex flex-col gap-2">
-          <For each={workouts()} fallback={<p>No workouts yet.</p>}>
-            {(workout) => <WorkoutCard workout={workout} />}
-          </For>
-        </ul>
-      </QueryBoundary>
+      <PageHeader title="Workouts" />
+      <CardList each={workouts()} fallback="No workouts yet.">
+        {(workout) => <WorkoutCard workout={workout} />}
+      </CardList>
+      <FloatingButton onClick={openDialog}>New</FloatingButton>
       <FormDialog
         open={dialogOpen()}
         onClose={() => setDialogOpen(false)}

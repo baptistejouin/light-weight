@@ -1,8 +1,9 @@
 import { createAsync, type RouteDefinition, useAction } from "@solidjs/router";
-import { createSignal, For } from "solid-js";
+import { createSignal } from "solid-js";
 import { createExercises, getExercises, getUser } from "@/api";
 import { ExerciseCard } from "@/components/pages/exercise/exercise-card";
-import { QueryBoundary } from "@/components/ui/error-message";
+import { CardList } from "@/components/ui/card-list";
+import { FloatingButton } from "@/components/ui/floating-button";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
@@ -21,15 +22,12 @@ export default function Exercise() {
   const [dialogOpen, setDialogOpen] = createSignal(false);
 
   return (
-    <div class="flex flex-1 flex-col gap-4">
-      <PageHeader title="Exercises" onNew={() => setDialogOpen(true)} />
-      <QueryBoundary>
-        <ul class="flex flex-col gap-2">
-          <For each={exercises()} fallback={<p>No exercises yet.</p>}>
-            {(exercise) => <ExerciseCard exercise={exercise} />}
-          </For>
-        </ul>
-      </QueryBoundary>
+    <div class="flex flex-1 scroll-m-2 flex-col gap-4">
+      <PageHeader title="Exercises" />
+      <CardList each={exercises()} fallback="No exercises yet.">
+        {(exercise) => <ExerciseCard exercise={exercise} />}
+      </CardList>
+      <FloatingButton onClick={() => setDialogOpen(true)}>New</FloatingButton>
       <FormDialog
         open={dialogOpen()}
         onClose={() => setDialogOpen(false)}
