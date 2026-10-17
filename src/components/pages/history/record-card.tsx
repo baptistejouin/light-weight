@@ -2,7 +2,8 @@ import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
 import { Card, CardHeader } from "@/components/ui/card";
 import { formatDate } from "@/lib/date";
-import { formatDuration } from "@/lib/format";
+import { formatDuration, recordName } from "@/lib/format";
+import { recordKindLabel } from "@/lib/record-kind";
 
 export function RecordCard(props: { record: WorkoutRecord }) {
   const source = () => props.record.exerciseName || props.record.workoutName;
@@ -11,8 +12,10 @@ export function RecordCard(props: { record: WorkoutRecord }) {
   return (
     <Card as="li">
       <CardHeader
-        title={props.record.title || source()}
-        badge={props.record.exerciseName ? "Activity" : "Workout"}
+        title={recordName(props.record)}
+        badge={
+          recordKindLabel[props.record.exerciseName ? "activity" : "workout"]
+        }
       />
       <p class="text-black/60 text-sm">
         {formatDate(props.record.performedAt)}
