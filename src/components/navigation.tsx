@@ -26,6 +26,7 @@ export default function Navigation() {
         <NavigationItem href="/">Home</NavigationItem>
         <NavigationItem href="/history">History</NavigationItem>
         <NavigationItem href="/exercise">Exercise</NavigationItem>
+        <NavigationItem href="/workouts">Workouts</NavigationItem>
       </ul>
     </nav>
   );
