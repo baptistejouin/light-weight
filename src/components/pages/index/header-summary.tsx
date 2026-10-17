@@ -6,7 +6,7 @@ import { recordName } from "@/lib/format";
 
 export function HeaderSummary(props: { lastRecord?: WorkoutRecord }) {
   return (
-    <h3 class="mt-6 font-bold text-2xl">
+    <h3 class="font-bold text-2xl">
       <Show
         when={props.lastRecord}
         fallback={

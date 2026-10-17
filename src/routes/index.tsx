@@ -1,10 +1,8 @@
 import { createAsync, type RouteDefinition } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import { getRecords, getUser } from "@/api";
-import { NewRecordMenu } from "@/components/new-record/new-record-menu";
 import { Calendar } from "@/components/pages/index/calendar";
 import { HeaderSummary } from "@/components/pages/index/header-summary";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { toPlainDate } from "@/lib/date";
@@ -42,24 +40,17 @@ export default function Home() {
   };
 
   return (
-    <div class="mb-6 flex flex-1 flex-col gap-2">
-      <PageHeader title="Activities" class="pb-2" />
-      <SegmentedControl
-        items={timeScaleValues}
-        value={timeScale()}
-        onChange={setTimeScale}
-      />
+    <div class="flex flex-1 flex-col gap-6">
+      <div class="flex flex-col gap-4">
+        <PageHeader title="Activities" />
+        <SegmentedControl
+          items={timeScaleValues}
+          value={timeScale()}
+          onChange={setTimeScale}
+        />
+      </div>
       <HeaderSummary lastRecord={lastRecord()} />
       <Calendar activityHistory={activityHistory()} />
-      <NewRecordMenu
-        class="mt-4"
-        placement="top"
-        trigger={(props) => (
-          <Button {...props} class="w-full">
-            New Record
-          </Button>
-        )}
-      />
     </div>
   );
 }
