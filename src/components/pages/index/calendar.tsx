@@ -1,11 +1,12 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { For } from "solid-js";
+import { createMemo, For } from "solid-js";
 import { cn } from "@/lib/utils";
 
 interface CalendarProps {
   activityHistory: Temporal.PlainDate[];
 }
-export function Calendar({ activityHistory }: CalendarProps) {
+
+export function Calendar(props: CalendarProps) {
   const today = Temporal.Now.plainDateISO();
   const firstDay = today.with({ day: 1 });
   const daysInMonth = firstDay.daysInMonth;
@@ -13,12 +14,16 @@ export function Calendar({ activityHistory }: CalendarProps) {
 
   const cols = ["M", "T", "W", "T", "F", "S", "S"];
 
-  const activityCountsByDay = new Map<number, number>();
-  for (const d of activityHistory.filter(
-    (x) => x.month === today.month && x.year === today.year,
-  )) {
-    activityCountsByDay.set(d.day, (activityCountsByDay.get(d.day) ?? 0) + 1);
-  }
+  // Read props inside a memo (not destructured) so the calendar updates
+  // when the records resolve after the first render.
+  const activityCountsByDay = createMemo(() => {
+    const counts = new Map<number, number>();
+    for (const d of props.activityHistory) {
+      if (d.month !== today.month || d.year !== today.year) continue;
+      counts.set(d.day, (counts.get(d.day) ?? 0) + 1);
+    }
+    return counts;
+  });
 
   const numWeeks = Math.ceil((startOffset + daysInMonth) / 7);
 
@@ -45,28 +50,24 @@ export function Calendar({ activityHistory }: CalendarProps) {
               <For each={week}>
                 {(day) => {
                   const isToday = day === today.day;
-                  const activityCount =
-                    day !== null ? (activityCountsByDay.get(day) ?? 0) : 0;
-                  const isActivity = activityCount > 0;
+                  const isActivity = () =>
+                    day !== null && (activityCountsByDay().get(day) ?? 0) > 0;
                   return (
                     <td class="flex flex-1 p-1 text-xl">
+                      {/*TODO: more activity means darker color (based on periode selected)*/}
                       <div
                         class={cn(
-                          "inline-flex aspect-square w-full items-center justify-center rounded-md text-gray-500",
+                          "inline-flex aspect-square w-full items-center justify-center rounded-md",
                           {
-                            "bg-gray-100": day,
-                            "bg-green-300": isActivity,
-                            "border-2 border-black border-dashed bg-gray-300 text-black":
-                              isToday,
+                            "bg-gray-100 text-gray-500": day,
+                            "bg-green-300 text-green-800": isActivity(),
+                            "border-2": isToday,
+                            "border-black text-black": isToday,
+                            "border-green-800": isToday && isActivity(),
                           },
                         )}
                       >
-                        {isActivity && (
-                          <span class="font-semibold text-green-800 tabular-nums">
-                            {activityCount}
-                          </span>
-                        )}
-                        {isToday && "T"}
+                        {day}
                       </div>
                     </td>
                   );
