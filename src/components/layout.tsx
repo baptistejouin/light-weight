@@ -8,7 +8,7 @@ interface LayoutProps {
 export function Layout(props: LayoutProps) {
   const resolved = children(() => props.children);
   return (
-    <main class="mx-auto flex min-h-svh max-w-sm flex-col px-4 pt-6">
+    <main class="mx-auto flex min-h-svh max-w-sm flex-col overscroll-none px-4 pt-2">
       {resolved()}
     </main>
   );

@@ -25,7 +25,9 @@ function Root(props: { children?: JSX.Element }) {
         <Show when={location.pathname !== "/login"}>
           <AppHeader />
         </Show>
-        <Suspense>{props.children}</Suspense>
+        <div class="flex flex-1 flex-col pb-8">
+          <Suspense>{props.children}</Suspense>
+        </div>
         <Navigation />
       </Layout>
     </NewRecordProvider>
