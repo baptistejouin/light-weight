@@ -17,8 +17,6 @@ interface FormDialogProps {
   children: JSX.Element;
 }
 
-// Dialog wrapping a form: handles pending state, error display, reset and
-// closing on success.
 export function FormDialog(props: FormDialogProps) {
   const [error, setError] = createSignal<Error | null>(null);
   const [pending, setPending] = createSignal(false);

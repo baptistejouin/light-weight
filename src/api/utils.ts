@@ -1,7 +1,5 @@
 import type { z } from "zod";
 
-// Validate a FormData (or plain object) against a schema, returning an Error
-// instead of throwing so server actions can hand it back to the form.
 export function parseForm<T extends z.ZodType>(
   schema: T,
   input: FormData | Record<string, unknown>,

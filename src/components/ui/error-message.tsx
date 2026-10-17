@@ -8,7 +8,6 @@ export function ErrorMessage(props: { children: JSX.Element }) {
   );
 }
 
-// ErrorBoundary that renders the error with ErrorMessage
 export function QueryBoundary(props: { children: JSX.Element }) {
   return (
     <ErrorBoundary

@@ -8,7 +8,6 @@ interface TargetInputProps {
   class?: string;
 }
 
-// Small number input for a step target (sets, reps, seconds)
 export function TargetInput(props: TargetInputProps) {
   return (
     <input

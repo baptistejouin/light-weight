@@ -14,8 +14,7 @@ export function Calendar(props: CalendarProps) {
 
   const cols = ["M", "T", "W", "T", "F", "S", "S"];
 
-  // Read props inside a memo (not destructured) so the calendar updates
-  // when the records resolve after the first render.
+  // Not destructured: props must stay reactive to update when records load
   const activityCountsByDay = createMemo(() => {
     const counts = new Map<number, number>();
     for (const d of props.activityHistory) {
