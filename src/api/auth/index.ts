@@ -1,16 +1,11 @@
 "use server";
 import { Users } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
-import { useSession } from "@solidjs/start/http";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { getSession, getSessionUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
-
-function getSession() {
-  return useSession({
-    password: import.meta.env.SESSION_SECRET,
-  });
-}
+import { parseForm } from "@/api/utils";
 
 async function login(username: string, password: string) {
   const user = db
@@ -28,11 +23,8 @@ export async function validateAndLogin(formData: FormData) {
     password: z.string().min(3).max(25),
   });
 
-  const formDataObj = Object.fromEntries(formData.entries());
-
-  const { data, error } = loginSchema.safeParse(formDataObj);
-
-  if (error) return new Error(error.message);
+  const data = parseForm(loginSchema, formData);
+  if (data instanceof Error) return data;
 
   try {
     const user = await login(data.username, data.password);
@@ -54,9 +46,7 @@ export async function logout() {
 }
 
 export async function getUser() {
-  const session = await getSession();
-  const userId = session.data.userId;
-  if (userId === undefined) throw redirect("/login");
+  const userId = await getSessionUserId();
 
   try {
     const user = db.select().from(Users).where(eq(Users.id, userId)).get();
