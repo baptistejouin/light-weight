@@ -1,11 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  integer,
-  primaryKey,
-  real,
-  sqliteTable,
-  text,
-} from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const Users = sqliteTable("users", {
   id: text("id")
@@ -61,24 +55,22 @@ export const Workouts = sqliteTable("workouts", {
 });
 
 // Workout template: ordered exercises with target sets/reps
-export const WorkoutExercises = sqliteTable(
-  "workout_exercises",
-  {
-    workoutId: text("workout_id")
-      .notNull()
-      .references(() => Workouts.id),
-    exerciseId: text("exercise_id")
-      .notNull()
-      .references(() => Exercises.id),
-    order: integer("order").notNull().default(0),
-    targetSets: integer("target_sets"),
-    targetReps: integer("target_reps"),
-    targetDuration: integer("target_duration"), // seconds
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.workoutId, t.exerciseId] }),
-  }),
-);
+export const WorkoutExercises = sqliteTable("workout_exercises", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID())
+    .notNull(),
+  workoutId: text("workout_id")
+    .notNull()
+    .references(() => Workouts.id),
+  exerciseId: text("exercise_id")
+    .notNull()
+    .references(() => Exercises.id),
+  order: integer("order").notNull().default(0),
+  targetSets: integer("target_sets"),
+  targetReps: integer("target_reps"),
+  targetDuration: integer("target_duration"), // seconds
+});
 
 // One entry per workout session performed by a user
 export const WorkoutHistory = sqliteTable("workout_history", {
@@ -89,9 +81,9 @@ export const WorkoutHistory = sqliteTable("workout_history", {
   userId: text("user_id")
     .notNull()
     .references(() => Users.id),
-  workoutId: text("workout_id")
-    .notNull()
-    .references(() => Workouts.id),
+  workoutId: text("workout_id").references(() => Workouts.id),
+  exerciseId: text("exercise_id").references(() => Exercises.id),
+  title: text("title"),
   performedAt: integer("performed_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
@@ -149,6 +141,7 @@ export const WorkoutsRelations = relations(Workouts, ({ one, many }) => ({
 export const ExercisesRelations = relations(Exercises, ({ many }) => ({
   workoutExercises: many(WorkoutExercises),
   sessionExercises: many(WorkoutSessionExercises),
+  history: many(WorkoutHistory),
 }));
 
 export const WorkoutExercisesRelations = relations(
@@ -175,6 +168,10 @@ export const WorkoutHistoryRelations = relations(
     workout: one(Workouts, {
       fields: [WorkoutHistory.workoutId],
       references: [Workouts.id],
+    }),
+    exercise: one(Exercises, {
+      fields: [WorkoutHistory.exerciseId],
+      references: [Exercises.id],
     }),
     sessionExercises: many(WorkoutSessionExercises),
   }),
