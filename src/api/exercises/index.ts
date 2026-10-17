@@ -3,6 +3,7 @@ import { Exercises } from "@drizzle/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/api/db";
+import { parseForm } from "@/api/utils";
 
 const getExerciseSchema = z.object({ id: z.uuid() });
 
@@ -21,10 +22,8 @@ const createExerciseSchema = z.object({
 });
 
 export async function createExercises(formData: FormData) {
-  const formDataObj = Object.fromEntries(formData.entries());
-  const { data, error } = createExerciseSchema.safeParse(formDataObj);
-
-  if (error) return new Error(error.message);
+  const data = parseForm(createExerciseSchema, formData);
+  if (data instanceof Error) return data;
 
   try {
     db.insert(Exercises)
