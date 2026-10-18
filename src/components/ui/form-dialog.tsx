@@ -1,4 +1,4 @@
-import { createEffect, createSignal, type JSX, on, Show } from "solid-js";
+import { createSignal, type JSX, Show } from "solid-js";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,12 +22,11 @@ export function FormDialog(props: FormDialogProps) {
   const [pending, setPending] = createSignal(false);
   let formRef: HTMLFormElement | undefined;
 
-  createEffect(
-    on(
-      () => props.open,
-      (open) => open && setError(null),
-    ),
-  );
+  function handleClose() {
+    setError(null);
+    formRef?.reset();
+    props.onClose();
+  }
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
@@ -44,19 +43,17 @@ export function FormDialog(props: FormDialogProps) {
       setPending(false);
     }
 
-    setError(null);
-    formRef.reset();
-    props.onClose();
+    handleClose();
   }
 
   return (
     <Dialog
       open={props.open}
-      onClose={props.onClose}
+      onClose={handleClose}
       aria-labelledby="dialog-title"
     >
       <form ref={formRef} onSubmit={handleSubmit}>
-        <DialogHeader onClose={props.onClose}>{props.title}</DialogHeader>
+        <DialogHeader onClose={handleClose}>{props.title}</DialogHeader>
         <DialogContent class="flex flex-col gap-3">
           {props.children}
           <Show when={error()}>
@@ -64,7 +61,7 @@ export function FormDialog(props: FormDialogProps) {
           </Show>
         </DialogContent>
         <DialogFooter>
-          <Button type="button" variant="secondary" onClick={props.onClose}>
+          <Button type="button" variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
           <Button type="submit" disabled={pending()}>
