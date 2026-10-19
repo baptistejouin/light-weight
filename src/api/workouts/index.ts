@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getSessionUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
+import { pickTargets } from "@/lib/exercise-targets";
 
 export const REST_EXERCISE_NAME = "Rest";
 
@@ -39,6 +40,7 @@ export async function getWorkouts() {
       targetSets: WorkoutExercises.targetSets,
       targetReps: WorkoutExercises.targetReps,
       targetDuration: WorkoutExercises.targetDuration,
+      targetWeight: WorkoutExercises.targetWeight,
       exerciseName: Exercises.name,
       exerciseType: Exercises.type,
     })
@@ -64,6 +66,7 @@ const stepSchema = z.object({
   targetSets: z.number().int().positive().optional(),
   targetReps: z.number().int().positive().optional(),
   targetDuration: z.number().int().positive().optional(),
+  targetWeight: z.number().positive().optional(),
 });
 
 const createWorkoutSchema = z.object({
@@ -89,6 +92,27 @@ export async function createWorkout(formData: FormData) {
   });
   if (data instanceof Error) return data;
 
+  const exerciseTypes = new Map(
+    db
+      .select({ id: Exercises.id, type: Exercises.type })
+      .from(Exercises)
+      .where(
+        inArray(
+          Exercises.id,
+          data.steps.map((s) => s.exerciseId),
+        ),
+      )
+      .all()
+      .map((e) => [e.id, e.type]),
+  );
+
+  const values = [];
+  for (const [index, { exerciseId, ...targets }] of data.steps.entries()) {
+    const type = exerciseTypes.get(exerciseId);
+    if (!type) return new Error("Unknown exercise");
+    values.push({ exerciseId, order: index, ...pickTargets(targets, type) });
+  }
+
   try {
     const workout = db
       .insert(Workouts)
@@ -101,16 +125,7 @@ export async function createWorkout(formData: FormData) {
       .get();
 
     db.insert(WorkoutExercises)
-      .values(
-        data.steps.map((step, index) => ({
-          workoutId: workout.id,
-          exerciseId: step.exerciseId,
-          order: index,
-          targetSets: step.targetSets,
-          targetReps: step.targetReps,
-          targetDuration: step.targetDuration,
-        })),
-      )
+      .values(values.map((v) => ({ ...v, workoutId: workout.id })))
       .run();
   } catch (err) {
     return err as Error;

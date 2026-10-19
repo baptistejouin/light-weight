@@ -70,6 +70,7 @@ export const WorkoutExercises = sqliteTable("workout_exercises", {
   targetSets: integer("target_sets"),
   targetReps: integer("target_reps"),
   targetDuration: integer("target_duration"), // seconds
+  targetWeight: real("target_weight"), // kg
 });
 
 // One entry per workout session performed by a user

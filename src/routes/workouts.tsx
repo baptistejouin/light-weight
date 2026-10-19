@@ -15,6 +15,7 @@ import { FloatingButton } from "@/components/ui/floating-button";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { pickTargets } from "@/lib/exercise-targets";
 
 export const route = {
   preload() {
@@ -49,9 +50,7 @@ export default function WorkoutsPage() {
       JSON.stringify(
         steps().map((s) => ({
           exerciseId: s.exerciseId,
-          targetSets: s.targetSets,
-          targetReps: s.targetReps,
-          targetDuration: s.targetDuration,
+          ...pickTargets(s, s.exerciseType),
         })),
       ),
     );
