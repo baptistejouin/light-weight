@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Index, Show } from "solid-js";
 import type { Exercise } from "@/api/types";
 import { type Step, StepRow } from "@/components/pages/workouts/step-row";
 import { cn } from "@/lib/utils";
@@ -64,19 +64,19 @@ export function StepBuilder(props: StepBuilderProps) {
       </div>
 
       <ol class="flex flex-col gap-2">
-        <For each={props.steps}>
+        <Index each={props.steps}>
           {(step, i) => (
             <StepRow
-              step={step}
-              index={i()}
-              isFirst={i() === 0}
-              isLast={i() === props.steps.length - 1}
-              onMove={(direction) => moveStep(i(), direction)}
-              onRemove={() => removeStep(step.key)}
-              onUpdate={(patch) => updateStep(step.key, patch)}
+              step={step()}
+              index={i}
+              isFirst={i === 0}
+              isLast={i === props.steps.length - 1}
+              onMove={(direction) => moveStep(i, direction)}
+              onRemove={() => removeStep(step().key)}
+              onUpdate={(patch) => updateStep(step().key, patch)}
             />
           )}
-        </For>
+        </Index>
       </ol>
     </>
   );
