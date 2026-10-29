@@ -8,7 +8,7 @@ import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
 import { pickTargets } from "@/lib/exercise-targets";
 
-export const REST_EXERCISE_NAME = "Rest";
+const REST_EXERCISE_NAME = "Rest";
 
 export async function getOrCreateRestExercise() {
   const existing = db
