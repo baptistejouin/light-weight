@@ -53,6 +53,6 @@ export async function getUser() {
     if (!user) throw redirect("/login");
     return { id: user.id, username: user.username };
   } catch {
-    throw logout();
+    return logout();
   }
 }

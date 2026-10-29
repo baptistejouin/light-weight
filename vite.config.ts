@@ -11,7 +11,11 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ""));
 
   return {
-    plugins: [solidStart(), nitro(), tailwindcss()],
+    plugins: [
+      solidStart({ middleware: "./src/middleware.ts" }),
+      nitro(),
+      tailwindcss(),
+    ],
     ssr: { external: ["drizzle-orm"] },
     resolve: {
       alias: {
