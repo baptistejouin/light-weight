@@ -1,8 +1,7 @@
 import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
 import { Card, CardHeader } from "@/components/ui/card";
-import { formatDate } from "@/lib/date";
-import { formatDuration, recordName } from "@/lib/format";
+import { formatDate, formatDuration, recordName } from "@/lib/format";
 import { recordKindLabel } from "@/lib/record-kind";
 
 export function RecordCard(props: { record: WorkoutRecord }) {

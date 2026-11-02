@@ -1,8 +1,7 @@
 import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
 import { CalendarIcon, WeightIcon } from "@/components/icons";
-import { formatDaysAgo } from "@/lib/date";
-import { recordName } from "@/lib/format";
+import { formatDaysAgo, recordName } from "@/lib/format";
 
 export function HeaderSummary(props: { lastRecord?: WorkoutRecord }) {
   return (
