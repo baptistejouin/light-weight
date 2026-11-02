@@ -48,17 +48,11 @@ export function NewRecordDialog(props: NewRecordDialogProps) {
         <Select
           name="exerciseId"
           label="Exercise"
-          required
           options={exerciseOptions()}
         />
       </Show>
       <Show when={props.kind === "workout"}>
-        <Select
-          name="workoutId"
-          label="Workout"
-          required
-          options={workoutOptions()}
-        />
+        <Select name="workoutId" label="Workout" options={workoutOptions()} />
       </Show>
 
       <Input name="title" label="Title" />
