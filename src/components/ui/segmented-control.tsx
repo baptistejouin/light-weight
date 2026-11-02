@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 interface SegmentedControlItem<T extends string> {
   label: string;
   value: T;
+  disabled?: boolean;
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -44,14 +45,15 @@ export function SegmentedControl<T extends string>(
         {(item, index) => (
           <button
             type="button"
+            disabled={item.disabled}
             onClick={() => props.onChange(item.value)}
             class={cn(
-              "relative cursor-pointer px-4 py-1.5 font-medium text-sm transition-colors",
-              "before:absolute before:top-1/2 before:left-0 before:-z-10 before:h-4 before:w-px before:-translate-y-1/2 before:bg-gray-300 before:transition-opacity",
+              "relative cursor-pointer px-4 py-1.5 font-medium text-sm transition-colors before:absolute before:top-1/2 before:left-0 before:-z-10 before:h-4 before:w-px before:-translate-y-1/2 before:bg-gray-300 before:transition-opacity",
               isDividerHidden(index()) && "before:opacity-0",
               props.value === item.value
                 ? "text-black"
                 : "text-gray-400 hover:text-gray-600",
+              "disabled:cursor-not-allowed disabled:text-gray-300",
             )}
           >
             {item.label}
