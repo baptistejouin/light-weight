@@ -7,6 +7,13 @@
   --font-sans: "Varela Round", sans-serif;
   --color-primary: #000;
   --spacing-nav: 3.5rem;
+
+  --color-activity-1: var(--color-green-200);
+  --color-activity-1-foreground: var(--color-green-800);
+  --color-activity-2: var(--color-green-400);
+  --color-activity-2-foreground: var(--color-green-950);
+  --color-activity-3: var(--color-green-600);
+  --color-activity-3-foreground: var(--color-white);
 }
 
 html,

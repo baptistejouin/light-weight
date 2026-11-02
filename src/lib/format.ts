@@ -50,3 +50,17 @@ export function formatDaysAgo(value: Date | string) {
   ).days;
   return relativeDays.format(-days, "day");
 }
+
+export function formatMonthName(month: number) {
+  return Temporal.PlainDate.from({ year: 2000, month, day: 1 }).toLocaleString(
+    "en",
+    { month: "long" },
+  );
+}
+
+export function formatWeekRange(start: Temporal.PlainDate) {
+  const end = start.add({ days: 6 });
+  const format = (day: Temporal.PlainDate) =>
+    day.toLocaleString("en", { month: "short", day: "numeric" });
+  return `${format(start)} – ${format(end)}, ${end.year}`;
+}

@@ -1,11 +1,11 @@
 import { createAsync, type RouteDefinition } from "@solidjs/router";
-import { createSignal } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import { getRecords, getUser } from "@/api";
-import { Calendar } from "@/components/pages/index/calendar";
+import { ActivityOverview } from "@/components/pages/index/activity-overview";
 import { HeaderSummary } from "@/components/pages/index/header-summary";
 import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { toPlainDate } from "@/lib/date";
+import { groupRecordsByDay } from "@/lib/records";
 
 export const route = {
   preload() {
@@ -17,8 +17,8 @@ export const route = {
 const timeScaleValues = [
   { label: "Week", value: "week" },
   { label: "Month", value: "month" },
-  { label: "Year", value: "year" },
-  { label: "All", value: "all" },
+  { label: "Year", value: "year", disabled: true },
+  { label: "All", value: "all", disabled: true },
 ];
 
 export default function Home() {
@@ -27,11 +27,7 @@ export default function Home() {
   // undefined when getRecords redirects (no valid session)
   const records = createAsync(() => getRecords());
 
-  const activityHistory = () => {
-    const list = records();
-    if (!list) return [];
-    return list.map((r) => toPlainDate(new Date(r.performedAt)));
-  };
+  const recordsByDay = createMemo(() => groupRecordsByDay(records() ?? []));
 
   const lastRecord = () => {
     const list = records();
@@ -50,7 +46,7 @@ export default function Home() {
         />
       </div>
       <HeaderSummary lastRecord={lastRecord()} />
-      <Calendar activityHistory={activityHistory()} />
+      <ActivityOverview timeScale={timeScale()} recordsByDay={recordsByDay()} />
     </div>
   );
 }
