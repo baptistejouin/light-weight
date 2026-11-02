@@ -12,6 +12,9 @@ interface SelectProps {
   label: string;
   options: SelectOption[];
   defaultValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  variant?: "outline" | "inline";
   class?: string;
 }
 
@@ -21,9 +24,10 @@ export function Select(props: SelectProps) {
   let trigger: HTMLButtonElement | undefined;
   let listbox: HTMLDivElement | undefined;
 
+  const isInline = () => props.variant === "inline";
   const id = () => `form-${props.name}`;
   const anchorName = () => `--select-${props.name}`;
-  const value = () => selected() ?? props.options[0]?.value;
+  const value = () => props.value ?? selected() ?? props.options[0]?.value;
   const selectedOption = () =>
     props.options.find((option) => option.value === value());
 
@@ -39,6 +43,7 @@ export function Select(props: SelectProps) {
 
   function choose(option: SelectOption) {
     setSelected(option.value);
+    props.onChange?.(option.value);
     listbox?.hidePopover();
     trigger?.focus();
   }
@@ -77,13 +82,15 @@ export function Select(props: SelectProps) {
     "position-anchor": anchorName(),
     top: "anchor(bottom)",
     left: "anchor(left)",
-    width: "anchor-size(width)",
+    "min-width": "anchor-size(width)",
     "position-try-fallbacks": "flip-block",
   });
 
   return (
-    <div class="flex flex-col">
-      <label for={id()}>{props.label}</label>
+    <div class={isInline() ? "inline-flex" : "flex flex-col"}>
+      <label for={id()} class={cn(isInline() && "sr-only")}>
+        {props.label}
+      </label>
       <input type="hidden" name={props.name} value={value() ?? ""} />
       <button
         ref={trigger}
@@ -95,8 +102,12 @@ export function Select(props: SelectProps) {
         onKeyDown={handleTriggerKeyDown}
         style={triggerStyle()}
         class={cn(
-          "m-0 flex cursor-pointer items-center justify-between gap-2 rounded-full px-3 py-3 text-left outline outline-primary transition-all focus-within:bg-primary/5 focus-within:outline-primary",
-          open() && "bg-primary/5",
+          "m-0 flex cursor-pointer items-center text-left transition-all",
+          isInline()
+            ? "-mx-1 gap-0.5 rounded-md px-1 font-semibold text-black outline-none hover:bg-gray-100 focus-visible:bg-gray-100"
+            : "justify-between gap-2 rounded-full px-3 outline outline-primary focus-within:bg-primary/5 focus-within:outline-primary",
+          !isInline() && "py-3",
+          open() && (isInline() ? "bg-gray-100" : "bg-primary/5"),
           props.class,
         )}
       >
