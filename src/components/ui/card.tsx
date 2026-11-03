@@ -22,15 +22,19 @@ export function Card(props: CardProps) {
 interface CardHeaderProps {
   title: JSX.Element;
   badge?: JSX.Element;
+  action?: JSX.Element;
 }
 
 export function CardHeader(props: CardHeaderProps) {
   return (
     <div class="flex items-center justify-between">
       <p class="font-semibold">{props.title}</p>
-      <Show when={props.badge}>
-        <span class="text-primary text-xs capitalize">{props.badge}</span>
-      </Show>
+      <div class="flex items-center gap-2">
+        <Show when={props.badge}>
+          <span class="text-primary text-xs capitalize">{props.badge}</span>
+        </Show>
+        {props.action}
+      </div>
     </div>
   );
 }
