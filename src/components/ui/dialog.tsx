@@ -51,13 +51,19 @@ export function Dialog(props: DialogProps) {
 }
 
 interface DialogHeaderProps {
+  id?: string;
   children: JSX.Element;
   onClose?: () => void;
   class?: string;
 }
 
 export function DialogHeader(props: DialogHeaderProps) {
-  const [local, rest] = splitProps(props, ["children", "onClose", "class"]);
+  const [local, rest] = splitProps(props, [
+    "id",
+    "children",
+    "onClose",
+    "class",
+  ]);
   return (
     <div
       {...rest}
@@ -66,7 +72,7 @@ export function DialogHeader(props: DialogHeaderProps) {
         local.class,
       )}
     >
-      <h2 id="dialog-title" class="font-semibold text-base">
+      <h2 id={local.id} class="font-semibold text-base">
         {local.children}
       </h2>
       {local.onClose && (

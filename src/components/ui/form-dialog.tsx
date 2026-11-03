@@ -1,4 +1,4 @@
-import { createSignal, type JSX, Show } from "solid-js";
+import { createUniqueId, type JSX, Show } from "solid-js";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,6 +7,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { createPendingAction } from "@/lib/pending-action";
 
 interface FormDialogProps {
   open: boolean;
@@ -18,45 +19,33 @@ interface FormDialogProps {
 }
 
 export function FormDialog(props: FormDialogProps) {
-  const [error, setError] = createSignal<Error | null>(null);
-  const [pending, setPending] = createSignal(false);
+  const titleId = createUniqueId();
+  const submit = createPendingAction(
+    (formData: FormData) => props.onSubmit(formData),
+    handleClose,
+  );
   let formRef: HTMLFormElement | undefined;
 
   function handleClose() {
-    setError(null);
+    submit.reset();
     formRef?.reset();
     props.onClose();
   }
 
-  async function handleSubmit(e: SubmitEvent) {
+  function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    if (!formRef) return;
-
-    setPending(true);
-    try {
-      const result = await props.onSubmit(new FormData(formRef));
-      if (result instanceof Error) {
-        setError(result);
-        return;
-      }
-    } finally {
-      setPending(false);
-    }
-
-    handleClose();
+    if (formRef) submit.run(new FormData(formRef));
   }
 
   return (
-    <Dialog
-      open={props.open}
-      onClose={handleClose}
-      aria-labelledby="dialog-title"
-    >
+    <Dialog open={props.open} onClose={handleClose} aria-labelledby={titleId}>
       <form ref={formRef} onSubmit={handleSubmit}>
-        <DialogHeader onClose={handleClose}>{props.title}</DialogHeader>
+        <DialogHeader id={titleId} onClose={handleClose}>
+          {props.title}
+        </DialogHeader>
         <DialogContent class="flex flex-col gap-3">
           {props.children}
-          <Show when={error()}>
+          <Show when={submit.error()}>
             {(err) => <ErrorMessage>{err().message}</ErrorMessage>}
           </Show>
         </DialogContent>
@@ -64,8 +53,8 @@ export function FormDialog(props: FormDialogProps) {
           <Button type="button" variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={pending()}>
-            {pending() ? "Saving..." : "Save"}
+          <Button type="submit" disabled={submit.pending()}>
+            {submit.pending() ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </form>
