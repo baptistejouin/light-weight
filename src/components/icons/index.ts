@@ -1,6 +1,11 @@
 export { CalendarIcon } from "./calendar-icon";
 export { CheckIcon } from "./check-icon";
 export { ChevronDownIcon } from "./chevron-down-icon";
+export { CirclePlusIcon } from "./circle-plus-icon";
 export { CloseIcon } from "./close-icon";
+export { HomeIcon } from "./home-icon";
+export { LibraryIcon } from "./library-icon";
 export { PlusIcon } from "./plus-icon";
+export { TimerIcon } from "./timer-icon";
+export { TrashIcon } from "./trash-icon";
 export { WeightIcon } from "./weight-icon";
