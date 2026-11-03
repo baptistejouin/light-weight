@@ -20,9 +20,15 @@ export interface MenuTriggerProps {
   onClick: () => void;
 }
 
+const placementClasses = {
+  "bottom-start": "top-full left-0 mt-2",
+  "bottom-end": "top-full right-0 mt-2",
+  "top-center": "bottom-full left-1/2 mb-2 -translate-x-1/2",
+};
+
 interface MenuProps {
   items: MenuItem[];
-  placement?: "bottom-start" | "bottom-end";
+  placement?: keyof typeof placementClasses;
   class?: string;
   trigger: (props: MenuTriggerProps) => JSX.Element;
 }
@@ -66,8 +72,7 @@ export function Menu(props: MenuProps) {
           role="menu"
           class={cn(
             "absolute z-10 min-w-40 rounded-2xl border border-primary/20 bg-white p-1 shadow-lg",
-            "top-full mt-2",
-            props.placement === "bottom-start" ? "left-0" : "right-0",
+            placementClasses[props.placement ?? "bottom-end"],
           )}
         >
           <For each={props.items}>

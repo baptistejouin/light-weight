@@ -7,6 +7,27 @@ interface SelectOption {
   value: string;
 }
 
+type SelectVariant = "outline" | "inline";
+
+const selectVariantClasses: Record<
+  SelectVariant,
+  { root: string; label?: string; trigger: string; open: string }
+> = {
+  outline: {
+    root: "flex flex-col",
+    trigger:
+      "justify-between gap-2 rounded-full px-3 py-3 outline outline-primary focus-within:bg-primary/5 focus-within:outline-primary",
+    open: "bg-primary/5",
+  },
+  inline: {
+    root: "inline-flex",
+    label: "sr-only",
+    trigger:
+      "-mx-1 gap-0.5 rounded-md px-1 font-semibold text-black outline-none hover:bg-gray-100 focus-visible:bg-gray-100",
+    open: "bg-gray-100",
+  },
+};
+
 interface SelectProps {
   name: string;
   label: string;
@@ -14,7 +35,7 @@ interface SelectProps {
   defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
-  variant?: "outline" | "inline";
+  variant?: SelectVariant;
   class?: string;
 }
 
@@ -24,7 +45,7 @@ export function Select(props: SelectProps) {
   let trigger: HTMLButtonElement | undefined;
   let listbox: HTMLDivElement | undefined;
 
-  const isInline = () => props.variant === "inline";
+  const variantClasses = () => selectVariantClasses[props.variant ?? "outline"];
   const id = () => `form-${props.name}`;
   const anchorName = () => `--select-${props.name}`;
   const value = () => props.value ?? selected() ?? props.options[0]?.value;
@@ -87,8 +108,8 @@ export function Select(props: SelectProps) {
   });
 
   return (
-    <div class={isInline() ? "inline-flex" : "flex flex-col"}>
-      <label for={id()} class={cn(isInline() && "sr-only")}>
+    <div class={variantClasses().root}>
+      <label for={id()} class={variantClasses().label}>
         {props.label}
       </label>
       <input type="hidden" name={props.name} value={value() ?? ""} />
@@ -103,11 +124,8 @@ export function Select(props: SelectProps) {
         style={triggerStyle()}
         class={cn(
           "m-0 flex cursor-pointer items-center text-left transition-all",
-          isInline()
-            ? "-mx-1 gap-0.5 rounded-md px-1 font-semibold text-black outline-none hover:bg-gray-100 focus-visible:bg-gray-100"
-            : "justify-between gap-2 rounded-full px-3 outline outline-primary focus-within:bg-primary/5 focus-within:outline-primary",
-          !isInline() && "py-3",
-          open() && (isInline() ? "bg-gray-100" : "bg-primary/5"),
+          variantClasses().trigger,
+          open() && variantClasses().open,
           props.class,
         )}
       >
