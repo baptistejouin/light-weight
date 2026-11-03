@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      solidStart({ middleware: "./src/middleware.ts" }),
+      solidStart({ middleware: "./src/middleware.ts", devOverlay: false }),
       nitro(),
       tailwindcss(),
     ],
