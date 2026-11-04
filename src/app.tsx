@@ -18,17 +18,20 @@ export default function App() {
 
 function Root(props: { children?: JSX.Element }) {
   const location = useLocation();
+  const isLoginPage = () => location.pathname === "/login";
 
   return (
     <NewRecordProvider>
       <Layout>
-        <Show when={location.pathname !== "/login"}>
+        <Show when={!isLoginPage()}>
           <AppHeader />
         </Show>
         <div class="flex flex-1 flex-col pb-8">
           <Suspense>{props.children}</Suspense>
         </div>
-        <Navigation />
+        <Show when={!isLoginPage()}>
+          <Navigation />
+        </Show>
       </Layout>
     </NewRecordProvider>
   );

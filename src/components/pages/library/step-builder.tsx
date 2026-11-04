@@ -1,6 +1,6 @@
 import { For, Index, Show } from "solid-js";
 import type { Exercise } from "@/api/types";
-import { type Step, StepRow } from "@/components/pages/workouts/step-row";
+import { type Step, StepRow } from "@/components/pages/library/step-row";
 import { cn } from "@/lib/utils";
 
 interface StepBuilderProps {

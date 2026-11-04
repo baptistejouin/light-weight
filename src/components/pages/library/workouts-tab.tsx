@@ -1,43 +1,44 @@
-import { createAsync, type RouteDefinition, useAction } from "@solidjs/router";
+import { createAsync, useAction } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import {
   createWorkout,
+  deleteWorkout,
   getExercises,
   getOrCreateRestExercise,
-  getUser,
   getWorkouts,
 } from "@/api";
-import { StepBuilder } from "@/components/pages/workouts/step-builder";
-import type { Step } from "@/components/pages/workouts/step-row";
-import { WorkoutCard } from "@/components/pages/workouts/workout-card";
+import type { Workout } from "@/api/types";
+import { StepBuilder } from "@/components/pages/library/step-builder";
+import type { Step } from "@/components/pages/library/step-row";
+import { WorkoutCard } from "@/components/pages/library/workout-card";
+import { AddCardButton } from "@/components/ui/add-card-button";
 import { CardList } from "@/components/ui/card-list";
-import { FloatingButton } from "@/components/ui/floating-button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
-import { PageHeader } from "@/components/ui/page-header";
 import { pickTargets } from "@/lib/exercise-targets";
 
-export const route = {
-  preload() {
-    getUser();
-    getWorkouts();
-    getExercises();
-    getOrCreateRestExercise();
-  },
-} satisfies RouteDefinition;
-
-export default function WorkoutsPage() {
+export function WorkoutsTab() {
   const workouts = createAsync(() => getWorkouts());
   const exercises = createAsync(() => getExercises());
   const restExercise = createAsync(() => getOrCreateRestExercise());
 
   const submitWorkout = useAction(createWorkout);
+  const removeWorkout = useAction(deleteWorkout);
   const [dialogOpen, setDialogOpen] = createSignal(false);
+  const [workoutToDelete, setWorkoutToDelete] = createSignal<Workout>();
   const [steps, setSteps] = createSignal<Step[]>([]);
 
   function openDialog() {
     setSteps([]);
     setDialogOpen(true);
+  }
+
+  const handleDeleteClose = () => setWorkoutToDelete(undefined);
+
+  function handleConfirmDelete() {
+    const workout = workoutToDelete();
+    if (workout) return removeWorkout(workout.id);
   }
 
   function handleSubmit(formData: FormData) {
@@ -58,12 +59,13 @@ export default function WorkoutsPage() {
   }
 
   return (
-    <div class="flex flex-1 flex-col gap-4">
-      <PageHeader title="Workouts" />
+    <>
+      <AddCardButton onClick={openDialog}>New workout</AddCardButton>
       <CardList each={workouts()} fallback="No workouts yet.">
-        {(workout) => <WorkoutCard workout={workout} />}
+        {(workout) => (
+          <WorkoutCard workout={workout} onDelete={setWorkoutToDelete} />
+        )}
       </CardList>
-      <FloatingButton onClick={openDialog}>New</FloatingButton>
       <FormDialog
         open={dialogOpen()}
         onClose={() => setDialogOpen(false)}
@@ -79,6 +81,16 @@ export default function WorkoutsPage() {
           restExercise={restExercise()}
         />
       </FormDialog>
-    </div>
+      <ConfirmDialog
+        open={!!workoutToDelete()}
+        onClose={handleDeleteClose}
+        title="Delete workout?"
+        confirmLabel="Delete"
+        pendingLabel="Deleting..."
+        onConfirm={handleConfirmDelete}
+      >
+        "{workoutToDelete()?.name}" will be permanently removed.
+      </ConfirmDialog>
+    </>
   );
 }

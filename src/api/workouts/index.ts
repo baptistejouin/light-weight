@@ -136,7 +136,7 @@ export async function createWorkout(formData: FormData) {
     return err as Error;
   }
 
-  throw redirect("/workouts");
+  throw redirect("/library?tab=workouts");
 }
 
 export async function deleteWorkout(id: string) {

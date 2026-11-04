@@ -1,11 +1,14 @@
 import { For } from "solid-js";
-import { TargetInput } from "@/components/pages/workouts/target-input";
+import { StepLabel } from "@/components/pages/library/step-label";
+import { TargetInput } from "@/components/pages/library/target-input";
+import { isBuiltIn } from "@/lib/built-in-exercises";
 import {
   type TargetField,
   type Targets,
   targetFieldsFor,
   targetInputConfig,
 } from "@/lib/exercise-targets";
+import { cn } from "@/lib/utils";
 
 export interface Step extends Targets {
   key: string;
@@ -26,16 +29,31 @@ interface StepRowProps {
 
 export function StepRow(props: StepRowProps) {
   const fields = () => targetFieldsFor(props.step.exerciseType);
+  const builtIn = () => isBuiltIn(props.step.exerciseType);
 
   function updateTarget(field: TargetField, value: number | undefined) {
     props.onUpdate({ [field]: value });
   }
 
   return (
-    <li class="flex flex-col gap-1 rounded-xl border border-primary/20 p-2">
+    <li
+      class={cn(
+        "flex flex-col gap-1 rounded-xl border border-primary/20 p-2",
+        builtIn() && "border-dashed bg-gray-50",
+      )}
+    >
       <div class="flex items-center justify-between">
-        <p class="font-medium text-sm">
-          {props.index + 1}. {props.step.exerciseName}
+        <p
+          class={cn(
+            "flex items-center gap-1 font-medium text-sm",
+            builtIn() && "text-black/60",
+          )}
+        >
+          <StepLabel
+            index={props.index}
+            name={props.step.exerciseName}
+            exerciseType={props.step.exerciseType}
+          />
         </p>
         <div class="flex gap-1">
           <button
