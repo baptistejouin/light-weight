@@ -4,7 +4,6 @@ import * as exercises from "./exercises";
 import * as records from "./records";
 import * as workouts from "./workouts";
 
-// Create a registry of queries
 const queries = {
   getUser: query(auth.getUser, "user"),
   getExercise: query(exercises.getExercise, "exercise"),
@@ -17,16 +16,17 @@ const queries = {
   getRecords: query(records.getRecords, "records"),
 };
 
-// Create a registry of actions
 const actions = {
   validateAndLogin: action(auth.validateAndLogin, "validateAndLogin"),
   logout: action(auth.logout, "logout"),
   createExercises: action(exercises.createExercises, "createExercises"),
+  deleteExercise: action(exercises.deleteExercise, "deleteExercise"),
   createWorkout: action(workouts.createWorkout, "createWorkout"),
+  deleteWorkout: action(workouts.deleteWorkout, "deleteWorkout"),
   createRecord: action(records.createRecord, "createRecord"),
+  deleteRecord: action(records.deleteRecord, "deleteRecord"),
 };
 
-// Export everything from the registries
 export const {
   getUser,
   getExercise,
@@ -39,6 +39,9 @@ export const {
   validateAndLogin,
   logout,
   createExercises,
+  deleteExercise,
   createWorkout,
+  deleteWorkout,
   createRecord,
+  deleteRecord,
 } = actions;

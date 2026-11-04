@@ -1,7 +1,12 @@
 "use server";
-import { Exercises, WorkoutExercises, Workouts } from "@drizzle/schema";
+import {
+  Exercises,
+  WorkoutExercises,
+  WorkoutHistory,
+  Workouts,
+} from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
@@ -132,4 +137,37 @@ export async function createWorkout(formData: FormData) {
   }
 
   throw redirect("/workouts");
+}
+
+export async function deleteWorkout(id: string) {
+  const userId = await getSessionUserId();
+
+  const workout = db
+    .select()
+    .from(Workouts)
+    .where(and(eq(Workouts.id, id), eq(Workouts.userId, userId)))
+    .get();
+  if (!workout) return new Error("Workout not found");
+
+  const isUsed = db
+    .select({ id: WorkoutHistory.id })
+    .from(WorkoutHistory)
+    .where(eq(WorkoutHistory.workoutId, id))
+    .get();
+  if (isUsed) {
+    return new Error(
+      `"${workout.name}" is used by a record, so it can't be deleted`,
+    );
+  }
+
+  try {
+    db.transaction((tx) => {
+      tx.delete(WorkoutExercises)
+        .where(eq(WorkoutExercises.workoutId, id))
+        .run();
+      tx.delete(Workouts).where(eq(Workouts.id, id)).run();
+    });
+  } catch (err) {
+    return err as Error;
+  }
 }

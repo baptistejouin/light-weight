@@ -84,3 +84,17 @@ export async function createRecord(formData: FormData) {
 
   throw redirect("/");
 }
+
+export async function deleteRecord(id: string) {
+  const userId = await getSessionUserId();
+
+  try {
+    const result = db
+      .delete(WorkoutHistory)
+      .where(and(eq(WorkoutHistory.id, id), eq(WorkoutHistory.userId, userId)))
+      .run();
+    if (result.changes === 0) return new Error("Record not found");
+  } catch (err) {
+    return err as Error;
+  }
+}
