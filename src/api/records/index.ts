@@ -1,7 +1,7 @@
 "use server";
 import { Exercises, WorkoutHistory, Workouts } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
 import { getSessionUserId } from "@/api/auth/session";
@@ -55,6 +55,15 @@ export async function createRecord(formData: FormData) {
   const performedAt = new Date(data.startedAt);
   if (Number.isNaN(performedAt.getTime())) {
     return new Error("Invalid start date/time");
+  }
+
+  if (data.kind === "workout" && data.workoutId) {
+    const workout = db
+      .select({ id: Workouts.id })
+      .from(Workouts)
+      .where(and(eq(Workouts.id, data.workoutId), eq(Workouts.userId, userId)))
+      .get();
+    if (!workout) return new Error("Workout not found");
   }
 
   try {
