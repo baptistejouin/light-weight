@@ -1,24 +1,19 @@
-import type { Temporal } from "@js-temporal/polyfill";
-import { createMemo, Show } from "solid-js";
+import { Show } from "solid-js";
+import type { WorkoutRecord } from "@/api/types";
 import { formatDuration } from "@/lib/format";
-import type { RecordsByDay } from "@/lib/records";
 
 interface PeriodSummaryProps {
   label: string;
-  days: Temporal.PlainDate[];
-  recordsByDay: RecordsByDay;
+  records: WorkoutRecord[];
 }
 
 export function PeriodSummary(props: PeriodSummaryProps) {
-  const records = createMemo(() =>
-    props.days.flatMap((day) => props.recordsByDay.get(day.toString()) ?? []),
-  );
   const totalDuration = () =>
     formatDuration(
-      records().reduce((sum, record) => sum + (record.duration ?? 0), 0),
+      props.records.reduce((sum, record) => sum + (record.duration ?? 0), 0),
     );
   const sessionsLabel = () =>
-    `${records().length} ${records().length === 1 ? "session" : "sessions"}`;
+    `${props.records.length} ${props.records.length === 1 ? "session" : "sessions"}`;
 
   return (
     <p class="px-1 text-gray-400 text-sm">

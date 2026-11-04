@@ -1,13 +1,14 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { createMemo, createSignal } from "solid-js";
+import { createMemo } from "solid-js";
 import { CalendarGrid } from "@/components/pages/index/calendar-grid";
-import { PeriodSummary } from "@/components/pages/index/period-summary";
 import { Select } from "@/components/ui/select";
 import { monthWeeks } from "@/lib/date";
 import { formatMonthName } from "@/lib/format";
 import { firstRecordDay, type RecordsByDay } from "@/lib/records";
 
 interface MonthViewProps {
+  anchor: Temporal.PlainDate;
+  onAnchorChange: (anchor: Temporal.PlainDate) => void;
   recordsByDay: RecordsByDay;
 }
 
@@ -18,7 +19,6 @@ const monthOptions = Array.from({ length: 12 }, (_, i) => ({
 
 export function MonthView(props: MonthViewProps) {
   const today = Temporal.Now.plainDateISO();
-  const [month, setMonth] = createSignal(today.with({ day: 1 }));
 
   const yearOptions = createMemo(() => {
     const firstYear = firstRecordDay(props.recordsByDay)?.year ?? today.year;
@@ -28,33 +28,31 @@ export function MonthView(props: MonthViewProps) {
     });
   });
 
-  const weeks = createMemo(() => monthWeeks(month()));
-  const days = () =>
-    weeks()
-      .flat()
-      .filter((day) => day !== null);
-  const isCurrentMonth = () =>
-    month().year === today.year && month().month === today.month;
-  const summaryLabel = () =>
-    isCurrentMonth()
-      ? "This month"
-      : month().toLocaleString("en", { month: "long", year: "numeric" });
+  const lastMonthOf = (year: number) =>
+    year === today.year ? today.month : 12;
+  const visibleMonthOptions = () =>
+    monthOptions.slice(0, lastMonthOf(props.anchor.year));
+
+  const weeks = createMemo(() => monthWeeks(props.anchor));
 
   const handleMonthChange = (value: string) =>
-    setMonth((current) => current.with({ month: Number(value) }));
-  const handleYearChange = (value: string) =>
-    setMonth((current) => current.with({ year: Number(value) }));
+    props.onAnchorChange(props.anchor.with({ month: Number(value), day: 1 }));
+  function handleYearChange(value: string) {
+    const year = Number(value);
+    const month = Math.min(props.anchor.month, lastMonthOf(year));
+    props.onAnchorChange(props.anchor.with({ year, month, day: 1 }));
+  }
 
   return (
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-3">
       <div class="mb-2 flex flex-wrap items-baseline gap-x-2 px-1 text-gray-400">
         Activity in
         <Select
           name="month"
           label="Month"
           variant="inline"
-          options={monthOptions}
-          value={String(month().month)}
+          options={visibleMonthOptions()}
+          value={String(props.anchor.month)}
           onChange={handleMonthChange}
         />
         <Select
@@ -62,16 +60,11 @@ export function MonthView(props: MonthViewProps) {
           label="Year"
           variant="inline"
           options={yearOptions()}
-          value={String(month().year)}
+          value={String(props.anchor.year)}
           onChange={handleYearChange}
         />
       </div>
       <CalendarGrid weeks={weeks()} recordsByDay={props.recordsByDay} />
-      <PeriodSummary
-        label={summaryLabel()}
-        days={days()}
-        recordsByDay={props.recordsByDay}
-      />
     </div>
   );
 }

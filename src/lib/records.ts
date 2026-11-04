@@ -19,3 +19,12 @@ export function firstRecordDay(recordsByDay: RecordsByDay) {
   const [first] = [...recordsByDay.keys()].sort();
   return first ? Temporal.PlainDate.from(first) : undefined;
 }
+
+export function recordsInDays(
+  recordsByDay: RecordsByDay,
+  days: Temporal.PlainDate[],
+) {
+  return days
+    .toReversed()
+    .flatMap((day) => recordsByDay.get(day.toString()) ?? []);
+}
