@@ -38,13 +38,18 @@ export function WeekChart(props: WeekChartProps) {
   const segmentLabel = (record: WorkoutRecord) =>
     `${recordName(record)} · ${formatDuration(record.duration)}`;
 
+  const isEmpty = () => maxTotal() === 0;
+
   return (
-    <Show when={maxTotal() > 0}>
-      <ol class="grid min-h-40 flex-1 grid-cols-7 border-gray-200 border-b">
+    <div class="relative flex min-h-40 flex-1 flex-col">
+      <ol class="grid flex-1 grid-cols-7 border-gray-200 border-b">
         <For each={columns()}>
           {(column) => (
             <li class="flex flex-col items-center justify-end gap-1 px-1">
-              <Show when={column.total > 0}>
+              <Show
+                when={column.total > 0}
+                fallback={<div class="h-1 w-full rounded-t-sm bg-gray-100" />}
+              >
                 <span class="text-black text-xs leading-4">
                   {formatDuration(column.total, { short: true })}
                 </span>
@@ -69,6 +74,11 @@ export function WeekChart(props: WeekChartProps) {
           )}
         </For>
       </ol>
-    </Show>
+      <Show when={isEmpty()}>
+        <p class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+          No sessions logged
+        </p>
+      </Show>
+    </div>
   );
 }
