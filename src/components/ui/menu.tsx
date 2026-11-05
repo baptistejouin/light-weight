@@ -6,6 +6,10 @@ import {
   onCleanup,
   Show,
 } from "solid-js";
+import {
+  popoverItemClass,
+  popoverSurfaceClass,
+} from "@/components/ui/popover-styles";
 import { cn } from "@/lib/utils";
 
 interface MenuItem {
@@ -71,7 +75,8 @@ export function Menu(props: MenuProps) {
         <div
           role="menu"
           class={cn(
-            "absolute z-10 min-w-40 rounded-2xl border border-primary/20 bg-white p-1 shadow-lg",
+            "fade-in absolute z-10 min-w-40 animate-in",
+            popoverSurfaceClass,
             placementClasses[props.placement ?? "bottom-end"],
           )}
         >
@@ -80,7 +85,7 @@ export function Menu(props: MenuProps) {
               <button
                 type="button"
                 role="menuitem"
-                class="w-full cursor-pointer rounded-xl px-4 py-2 text-left hover:bg-gray-100"
+                class={popoverItemClass}
                 onClick={() => {
                   setOpen(false);
                   item.onSelect();

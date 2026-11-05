@@ -37,6 +37,7 @@ export function MonthView(props: MonthViewProps) {
 
   const handleMonthChange = (value: string) =>
     props.onAnchorChange(props.anchor.with({ month: Number(value), day: 1 }));
+
   function handleYearChange(value: string) {
     const year = Number(value);
     const month = Math.min(props.anchor.month, lastMonthOf(year));

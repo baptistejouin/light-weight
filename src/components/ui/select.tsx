@@ -1,32 +1,17 @@
-import { createSignal, For } from "solid-js";
-import { CheckIcon, ChevronDownIcon } from "@/components/icons";
+import { For } from "solid-js";
+import { CheckIcon } from "@/components/icons";
+import {
+  PopoverField,
+  type PopoverFieldVariant,
+} from "@/components/ui/popover-field";
+import { popoverItemClass } from "@/components/ui/popover-styles";
+import { createFieldValue } from "@/lib/create-field-value";
 import { cn } from "@/lib/utils";
 
 interface SelectOption {
   label: string;
   value: string;
 }
-
-type SelectVariant = "outline" | "inline";
-
-const selectVariantClasses: Record<
-  SelectVariant,
-  { root: string; label?: string; trigger: string; open: string }
-> = {
-  outline: {
-    root: "flex flex-col",
-    trigger:
-      "justify-between gap-2 rounded-full px-3 py-3 outline outline-primary focus-within:bg-primary/5 focus-within:outline-primary",
-    open: "bg-primary/5",
-  },
-  inline: {
-    root: "inline-flex",
-    label: "sr-only",
-    trigger:
-      "-mx-1 gap-0.5 rounded-md px-1 font-semibold text-black outline-none hover:bg-gray-100 focus-visible:bg-gray-100",
-    open: "bg-gray-100",
-  },
-};
 
 interface SelectProps {
   name: string;
@@ -35,20 +20,16 @@ interface SelectProps {
   defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
-  variant?: SelectVariant;
+  variant?: Exclude<PopoverFieldVariant, "compact">;
   class?: string;
 }
 
 export function Select(props: SelectProps) {
-  const [selected, setSelected] = createSignal(props.defaultValue);
-  const [open, setOpen] = createSignal(false);
+  const field = createFieldValue(props, "");
   let trigger: HTMLButtonElement | undefined;
   let listbox: HTMLDivElement | undefined;
 
-  const variantClasses = () => selectVariantClasses[props.variant ?? "outline"];
-  const id = () => `form-${props.name}`;
-  const anchorName = () => `--select-${props.name}`;
-  const value = () => props.value ?? selected() ?? props.options[0]?.value;
+  const value = () => field.value() || props.options[0]?.value;
   const selectedOption = () =>
     props.options.find((option) => option.value === value());
 
@@ -63,15 +44,12 @@ export function Select(props: SelectProps) {
   }
 
   function choose(option: SelectOption) {
-    setSelected(option.value);
-    props.onChange?.(option.value);
+    field.setValue(option.value);
     listbox?.hidePopover();
     trigger?.focus();
   }
 
-  function handleToggle(e: ToggleEvent) {
-    const isOpen = e.newState === "open";
-    setOpen(isOpen);
+  function handleOpenChange(isOpen: boolean) {
     if (!isOpen) return;
     const index = props.options.findIndex((o) => o.value === value());
     focusOption(Math.max(index, 0));
@@ -98,56 +76,26 @@ export function Select(props: SelectProps) {
     focusOption(moves[e.key]);
   }
 
-  const triggerStyle = () => ({ "anchor-name": anchorName() });
-  const listboxStyle = () => ({
-    "position-anchor": anchorName(),
-    top: "anchor(bottom)",
-    left: "anchor(left)",
-    "min-width": "anchor-size(width)",
-    "position-try-fallbacks": "flip-block",
-  });
-
   return (
-    <div class={variantClasses().root}>
-      <label for={id()} class={variantClasses().label}>
-        {props.label}
-      </label>
-      <input type="hidden" name={props.name} value={value() ?? ""} />
-      <button
-        ref={trigger}
-        id={id()}
-        type="button"
-        popovertarget={`${id()}-listbox`}
-        aria-haspopup="listbox"
-        aria-expanded={open()}
-        onKeyDown={handleTriggerKeyDown}
-        style={triggerStyle()}
-        class={cn(
-          "m-0 flex cursor-pointer items-center text-left transition-all",
-          variantClasses().trigger,
-          open() && variantClasses().open,
-          props.class,
-        )}
-      >
-        <span class="truncate">{selectedOption()?.label}</span>
-        <ChevronDownIcon
-          aria-hidden="true"
-          class={cn(
-            "size-4 shrink-0 transition-transform duration-200",
-            open() && "rotate-180",
-          )}
-        />
-      </button>
+    <PopoverField
+      label={props.label}
+      value={selectedOption()?.label ?? ""}
+      popupRole="listbox"
+      variant={props.variant}
+      name={props.name}
+      formValue={value()}
+      class={props.class}
+      popoverClass="max-h-64 overflow-y-auto"
+      triggerRef={(el) => (trigger = el)}
+      popoverRef={(el) => (listbox = el)}
+      onOpenChange={handleOpenChange}
+      onTriggerKeyDown={handleTriggerKeyDown}
+      onReset={field.reset}
+    >
       <div
-        ref={listbox}
-        id={`${id()}-listbox`}
-        popover="auto"
         role="listbox"
-        aria-labelledby={id()}
-        onToggle={handleToggle}
+        aria-label={props.label}
         onKeyDown={handleListboxKeyDown}
-        style={listboxStyle()}
-        class="open:fade-in inset-auto m-0 mt-2 max-h-64 overflow-y-auto rounded-2xl border border-primary/20 bg-white p-1 shadow-lg open:animate-in"
       >
         <For each={props.options}>
           {(option) => (
@@ -156,7 +104,10 @@ export function Select(props: SelectProps) {
               role="option"
               aria-selected={option.value === value()}
               onClick={() => choose(option)}
-              class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-4 py-2 text-left outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-selected:font-medium"
+              class={cn(
+                popoverItemClass,
+                "flex items-center justify-between gap-2 aria-selected:font-medium",
+              )}
             >
               <span class="truncate">{option.label}</span>
               {option.value === value() && (
@@ -169,6 +120,6 @@ export function Select(props: SelectProps) {
           )}
         </For>
       </div>
-    </div>
+    </PopoverField>
   );
 }
