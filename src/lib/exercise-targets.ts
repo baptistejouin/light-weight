@@ -1,16 +1,16 @@
 export type TargetField =
   | "targetSets"
   | "targetReps"
-  | "targetWeight"
-  | "targetDuration";
+  | "targetWeightKg"
+  | "targetDurationSeconds";
 
 export type Targets = Partial<Record<TargetField, number>>;
 
 const targetFieldsByType: Record<string, TargetField[]> = {
-  strength: ["targetSets", "targetReps", "targetWeight"],
-  cardio: ["targetDuration"],
-  flexibility: ["targetSets", "targetDuration"],
-  rest: ["targetDuration"],
+  strength: ["targetSets", "targetReps", "targetWeightKg"],
+  cardio: ["targetDurationSeconds"],
+  flexibility: ["targetSets", "targetDurationSeconds"],
+  rest: ["targetDurationSeconds"],
 };
 
 export const targetInputConfig: Record<
@@ -19,8 +19,8 @@ export const targetInputConfig: Record<
 > = {
   targetSets: { placeholder: "sets", step: "1" },
   targetReps: { placeholder: "reps", step: "1" },
-  targetWeight: { placeholder: "kg", step: "0.5" },
-  targetDuration: { placeholder: "seconds", step: "1", class: "w-20" },
+  targetWeightKg: { placeholder: "kg", step: "0.5" },
+  targetDurationSeconds: { placeholder: "seconds", step: "1", class: "w-20" },
 };
 
 export function targetFieldsFor(exerciseType: string) {

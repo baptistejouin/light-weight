@@ -69,12 +69,12 @@ export const WorkoutExercises = sqliteTable("workout_exercises", {
   order: integer("order").notNull().default(0),
   targetSets: integer("target_sets"),
   targetReps: integer("target_reps"),
-  targetDuration: integer("target_duration"), // seconds
-  targetWeight: real("target_weight"), // kg
+  targetDurationSeconds: integer("target_duration_seconds"),
+  targetWeightKg: real("target_weight_kg"),
 });
 
-// One entry per workout session performed by a user
-export const WorkoutHistory = sqliteTable("workout_history", {
+// One entry per logged session: a workout or a single exercise
+export const Records = sqliteTable("records", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID())
@@ -88,61 +88,58 @@ export const WorkoutHistory = sqliteTable("workout_history", {
   performedAt: integer("performed_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
-  duration: integer("duration"), // seconds
+  durationSeconds: integer("duration_seconds"),
   notes: text("notes"),
 });
 
-// Each exercise done within a session
-export const WorkoutSessionExercises = sqliteTable(
-  "workout_session_exercises",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID())
-      .notNull(),
-    historyId: text("history_id")
-      .notNull()
-      .references(() => WorkoutHistory.id),
-    exerciseId: text("exercise_id")
-      .notNull()
-      .references(() => Exercises.id),
-    order: integer("order").notNull().default(0),
-    notes: text("notes"),
-  },
-);
-
-// Each set within a session exercise (actual performance)
-export const WorkoutSessionSets = sqliteTable("workout_session_sets", {
+// Each exercise done within a record
+export const RecordExercises = sqliteTable("record_exercises", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID())
     .notNull(),
-  sessionExerciseId: text("session_exercise_id")
+  recordId: text("record_id")
     .notNull()
-    .references(() => WorkoutSessionExercises.id),
+    .references(() => Records.id),
+  exerciseId: text("exercise_id")
+    .notNull()
+    .references(() => Exercises.id),
+  order: integer("order").notNull().default(0),
+  notes: text("notes"),
+});
+
+// Each set within a record exercise (actual performance)
+export const RecordSets = sqliteTable("record_sets", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID())
+    .notNull(),
+  recordExerciseId: text("record_exercise_id")
+    .notNull()
+    .references(() => RecordExercises.id),
   setNumber: integer("set_number").notNull(),
   reps: integer("reps"), // strength
-  weight: real("weight"), // kg, strength
-  duration: integer("duration"), // seconds, cardio/timed
-  distance: real("distance"), // meters, cardio
+  weightKg: real("weight_kg"), // strength
+  durationSeconds: integer("duration_seconds"), // cardio/timed
+  distanceM: real("distance_m"), // cardio
 });
 
 // Relations
 export const UsersRelations = relations(Users, ({ many }) => ({
   workouts: many(Workouts),
-  workoutHistory: many(WorkoutHistory),
+  records: many(Records),
 }));
 
 export const WorkoutsRelations = relations(Workouts, ({ one, many }) => ({
   user: one(Users, { fields: [Workouts.userId], references: [Users.id] }),
   workoutExercises: many(WorkoutExercises),
-  history: many(WorkoutHistory),
+  records: many(Records),
 }));
 
 export const ExercisesRelations = relations(Exercises, ({ many }) => ({
   workoutExercises: many(WorkoutExercises),
-  sessionExercises: many(WorkoutSessionExercises),
-  history: many(WorkoutHistory),
+  recordExercises: many(RecordExercises),
+  records: many(Records),
 }));
 
 export const WorkoutExercisesRelations = relations(
@@ -159,46 +156,40 @@ export const WorkoutExercisesRelations = relations(
   }),
 );
 
-export const WorkoutHistoryRelations = relations(
-  WorkoutHistory,
+export const RecordsRelations = relations(Records, ({ one, many }) => ({
+  user: one(Users, {
+    fields: [Records.userId],
+    references: [Users.id],
+  }),
+  workout: one(Workouts, {
+    fields: [Records.workoutId],
+    references: [Workouts.id],
+  }),
+  exercise: one(Exercises, {
+    fields: [Records.exerciseId],
+    references: [Exercises.id],
+  }),
+  recordExercises: many(RecordExercises),
+}));
+
+export const RecordExercisesRelations = relations(
+  RecordExercises,
   ({ one, many }) => ({
-    user: one(Users, {
-      fields: [WorkoutHistory.userId],
-      references: [Users.id],
-    }),
-    workout: one(Workouts, {
-      fields: [WorkoutHistory.workoutId],
-      references: [Workouts.id],
+    record: one(Records, {
+      fields: [RecordExercises.recordId],
+      references: [Records.id],
     }),
     exercise: one(Exercises, {
-      fields: [WorkoutHistory.exerciseId],
+      fields: [RecordExercises.exerciseId],
       references: [Exercises.id],
     }),
-    sessionExercises: many(WorkoutSessionExercises),
+    sets: many(RecordSets),
   }),
 );
 
-export const WorkoutSessionExercisesRelations = relations(
-  WorkoutSessionExercises,
-  ({ one, many }) => ({
-    history: one(WorkoutHistory, {
-      fields: [WorkoutSessionExercises.historyId],
-      references: [WorkoutHistory.id],
-    }),
-    exercise: one(Exercises, {
-      fields: [WorkoutSessionExercises.exerciseId],
-      references: [Exercises.id],
-    }),
-    sets: many(WorkoutSessionSets),
+export const RecordSetsRelations = relations(RecordSets, ({ one }) => ({
+  recordExercise: one(RecordExercises, {
+    fields: [RecordSets.recordExerciseId],
+    references: [RecordExercises.id],
   }),
-);
-
-export const WorkoutSessionSetsRelations = relations(
-  WorkoutSessionSets,
-  ({ one }) => ({
-    sessionExercise: one(WorkoutSessionExercises, {
-      fields: [WorkoutSessionSets.sessionExerciseId],
-      references: [WorkoutSessionExercises.id],
-    }),
-  }),
-);
+}));

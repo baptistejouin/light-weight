@@ -1,9 +1,9 @@
 "use server";
 import {
   Exercises,
+  RecordExercises,
+  Records,
   WorkoutExercises,
-  WorkoutHistory,
-  WorkoutSessionExercises,
 } from "@drizzle/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -60,11 +60,7 @@ export async function deleteExercise(id: string) {
     return new Error(`"${exercise.name}" is built-in and can't be deleted`);
   }
 
-  const isUsed = [
-    WorkoutExercises,
-    WorkoutHistory,
-    WorkoutSessionExercises,
-  ].some((table) =>
+  const isUsed = [WorkoutExercises, Records, RecordExercises].some((table) =>
     db
       .select({ id: table.id })
       .from(table)

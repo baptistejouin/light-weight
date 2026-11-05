@@ -12,7 +12,7 @@ interface RecordRowProps {
 
 export function RecordRow(props: RecordRowProps) {
   const source = () => props.record.exerciseName || props.record.workoutName;
-  const duration = () => formatDuration(props.record.duration);
+  const duration = () => formatDuration(props.record.durationSeconds);
 
   const actions = [
     {

@@ -1,5 +1,5 @@
 "use server";
-import { Exercises, WorkoutHistory, Workouts } from "@drizzle/schema";
+import { Exercises, Records, Workouts } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
 import { and, desc, eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
@@ -16,19 +16,19 @@ export async function getRecords() {
 
   return db
     .select({
-      id: WorkoutHistory.id,
-      title: WorkoutHistory.title,
-      notes: WorkoutHistory.notes,
-      performedAt: WorkoutHistory.performedAt,
-      duration: WorkoutHistory.duration,
+      id: Records.id,
+      title: Records.title,
+      notes: Records.notes,
+      performedAt: Records.performedAt,
+      durationSeconds: Records.durationSeconds,
       exerciseName: exercise.name,
       workoutName: workout.name,
     })
-    .from(WorkoutHistory)
-    .leftJoin(exercise, eq(WorkoutHistory.exerciseId, exercise.id))
-    .leftJoin(workout, eq(WorkoutHistory.workoutId, workout.id))
-    .where(eq(WorkoutHistory.userId, userId))
-    .orderBy(desc(WorkoutHistory.performedAt))
+    .from(Records)
+    .leftJoin(exercise, eq(Records.exerciseId, exercise.id))
+    .leftJoin(workout, eq(Records.workoutId, workout.id))
+    .where(eq(Records.userId, userId))
+    .orderBy(desc(Records.performedAt))
     .all();
 }
 
@@ -67,7 +67,7 @@ export async function createRecord(formData: FormData) {
   }
 
   try {
-    db.insert(WorkoutHistory)
+    db.insert(Records)
       .values({
         userId,
         exerciseId: data.kind === "activity" ? data.exerciseId : null,
@@ -75,7 +75,7 @@ export async function createRecord(formData: FormData) {
         title: data.title || null,
         notes: data.description || null,
         performedAt,
-        duration: data.durationMinutes * 60,
+        durationSeconds: data.durationMinutes * 60,
       })
       .run();
   } catch (err) {
@@ -90,8 +90,8 @@ export async function deleteRecord(id: string) {
 
   try {
     const result = db
-      .delete(WorkoutHistory)
-      .where(and(eq(WorkoutHistory.id, id), eq(WorkoutHistory.userId, userId)))
+      .delete(Records)
+      .where(and(eq(Records.id, id), eq(Records.userId, userId)))
       .run();
     if (result.changes === 0) return new Error("Record not found");
   } catch (err) {

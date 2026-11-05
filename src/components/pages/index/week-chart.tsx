@@ -21,9 +21,12 @@ export function WeekChart(props: WeekChartProps) {
   const columns = createMemo<DaySessions[]>(() =>
     props.days.map((day) => {
       const sessions = (props.recordsByDay.get(day.toString()) ?? [])
-        .filter((record) => record.duration)
+        .filter((record) => record.durationSeconds)
         .reverse();
-      const total = sessions.reduce((sum, r) => sum + (r.duration ?? 0), 0);
+      const total = sessions.reduce(
+        (sum, r) => sum + (r.durationSeconds ?? 0),
+        0,
+      );
       return { day, sessions, total };
     }),
   );
@@ -33,10 +36,10 @@ export function WeekChart(props: WeekChartProps) {
     height: `calc((100% - ${labelSpace}) * ${total / maxTotal()})`,
   });
   const segmentStyle = (record: WorkoutRecord) => ({
-    "flex-grow": record.duration ?? 0,
+    "flex-grow": record.durationSeconds ?? 0,
   });
   const segmentLabel = (record: WorkoutRecord) =>
-    `${recordName(record)} · ${formatDuration(record.duration)}`;
+    `${recordName(record)} · ${formatDuration(record.durationSeconds)}`;
 
   const isEmpty = () => maxTotal() === 0;
 

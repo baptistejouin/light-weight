@@ -10,7 +10,10 @@ interface PeriodSummaryProps {
 export function PeriodSummary(props: PeriodSummaryProps) {
   const totalDuration = () =>
     formatDuration(
-      props.records.reduce((sum, record) => sum + (record.duration ?? 0), 0),
+      props.records.reduce(
+        (sum, record) => sum + (record.durationSeconds ?? 0),
+        0,
+      ),
     );
   const sessionsLabel = () =>
     `${props.records.length} ${props.records.length === 1 ? "session" : "sessions"}`;

@@ -1,8 +1,8 @@
 "use server";
 import {
   Exercises,
+  Records,
   WorkoutExercises,
-  WorkoutHistory,
   Workouts,
 } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
@@ -44,8 +44,8 @@ export async function getWorkouts() {
       order: WorkoutExercises.order,
       targetSets: WorkoutExercises.targetSets,
       targetReps: WorkoutExercises.targetReps,
-      targetDuration: WorkoutExercises.targetDuration,
-      targetWeight: WorkoutExercises.targetWeight,
+      targetDurationSeconds: WorkoutExercises.targetDurationSeconds,
+      targetWeightKg: WorkoutExercises.targetWeightKg,
       exerciseName: Exercises.name,
       exerciseType: Exercises.type,
     })
@@ -70,8 +70,8 @@ const stepSchema = z.object({
   exerciseId: z.uuid(),
   targetSets: z.number().int().positive().optional(),
   targetReps: z.number().int().positive().optional(),
-  targetDuration: z.number().int().positive().optional(),
-  targetWeight: z.number().positive().optional(),
+  targetDurationSeconds: z.number().int().positive().optional(),
+  targetWeightKg: z.number().positive().optional(),
 });
 
 const createWorkoutSchema = z.object({
@@ -150,9 +150,9 @@ export async function deleteWorkout(id: string) {
   if (!workout) return new Error("Workout not found");
 
   const isUsed = db
-    .select({ id: WorkoutHistory.id })
-    .from(WorkoutHistory)
-    .where(eq(WorkoutHistory.workoutId, id))
+    .select({ id: Records.id })
+    .from(Records)
+    .where(eq(Records.workoutId, id))
     .get();
   if (isUsed) {
     return new Error(
