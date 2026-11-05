@@ -20,3 +20,15 @@ html,
 body {
   overscroll-behavior: none;
 }
+
+/* iOS Safari skips @property initial values on lazily filled popovers */
+@layer base {
+  [popover] {
+    --tw-border-style: solid;
+    --tw-shadow: 0 0 #0000;
+    --tw-inset-shadow: 0 0 #0000;
+    --tw-inset-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+  }
+}

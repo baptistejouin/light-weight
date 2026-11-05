@@ -38,8 +38,7 @@ export function Dialog(props: DialogProps) {
       aria-labelledby={props["aria-labelledby"]}
       aria-describedby={props["aria-describedby"]}
       class={cn(
-        "w-full max-w-sm rounded-2xl p-0 shadow-xl",
-        "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+        "m-auto w-full max-w-sm rounded-2xl p-0 shadow-xl",
         "backdrop:bg-black/40 backdrop:backdrop-blur-sm",
         "open:fade-in open:slide-in-from-bottom-4 open:animate-in",
         props.class,
@@ -82,7 +81,7 @@ export function DialogHeader(props: DialogHeaderProps) {
           aria-label="Close dialog"
           class="-mr-1 cursor-pointer rounded-full p-1 transition-colors hover:bg-black/5"
         >
-          <CloseIcon aria-hidden="true" class="size-[18px]" />
+          <CloseIcon aria-hidden="true" class="size-4.5" />
         </button>
       )}
     </div>
