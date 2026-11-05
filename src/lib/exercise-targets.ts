@@ -1,3 +1,5 @@
+import type { ExerciseType } from "@drizzle/schema";
+
 export type TargetField =
   | "targetSets"
   | "targetReps"
@@ -6,7 +8,7 @@ export type TargetField =
 
 export type Targets = Partial<Record<TargetField, number>>;
 
-const targetFieldsByType: Record<string, TargetField[]> = {
+const targetFieldsByType: Record<ExerciseType, TargetField[]> = {
   strength: ["targetSets", "targetReps", "targetWeightKg"],
   cardio: ["targetDurationSeconds"],
   flexibility: ["targetSets", "targetDurationSeconds"],
@@ -23,11 +25,14 @@ export const targetInputConfig: Record<
   targetDurationSeconds: { placeholder: "seconds", step: "1", class: "w-20" },
 };
 
-export function targetFieldsFor(exerciseType: string) {
+export function targetFieldsFor(exerciseType: ExerciseType) {
   return targetFieldsByType[exerciseType] ?? [];
 }
 
-export function pickTargets(targets: Targets, exerciseType: string): Targets {
+export function pickTargets(
+  targets: Targets,
+  exerciseType: ExerciseType,
+): Targets {
   return Object.fromEntries(
     targetFieldsFor(exerciseType).map((field) => [field, targets[field]]),
   );

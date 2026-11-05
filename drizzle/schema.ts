@@ -1,6 +1,15 @@
 import { relations } from "drizzle-orm";
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
+export const exerciseTypes = [
+  "strength",
+  "cardio",
+  "flexibility",
+  "rest",
+] as const;
+
+export type ExerciseType = (typeof exerciseTypes)[number];
+
 export const Users = sqliteTable("users", {
   id: text("id")
     .primaryKey()
@@ -24,8 +33,7 @@ export const Exercises = sqliteTable("exercises", {
     .notNull(),
   name: text("name").notNull(),
   description: text("description"),
-  // "strength" | "cardio" | "flexibility"
-  type: text("type").notNull().default("strength"),
+  type: text("type", { enum: exerciseTypes }).notNull().default("strength"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),

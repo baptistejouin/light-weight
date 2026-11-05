@@ -1,9 +1,10 @@
+import type { ExerciseType } from "@drizzle/schema";
 import { BuiltInIcon } from "@/components/pages/library/built-in-icon";
 
 interface StepLabelProps {
   index: number;
   name: string;
-  exerciseType: string;
+  exerciseType: ExerciseType;
 }
 
 export function StepLabel(props: StepLabelProps) {

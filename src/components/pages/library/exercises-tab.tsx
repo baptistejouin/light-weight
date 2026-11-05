@@ -1,3 +1,4 @@
+import type { ExerciseType } from "@drizzle/schema";
 import { createAsync, useAction } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import { createExercises, deleteExercise, getExercises } from "@/api";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { isBuiltIn } from "@/lib/built-in-exercises";
 
-const typeOptions = [
+const typeOptions: { label: string; value: ExerciseType }[] = [
   { label: "Strength", value: "strength" },
   { label: "Cardio", value: "cardio" },
   { label: "Flexibility", value: "flexibility" },

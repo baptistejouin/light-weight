@@ -1,6 +1,7 @@
 "use server";
 import {
   Exercises,
+  exerciseTypes,
   RecordExercises,
   Records,
   WorkoutExercises,
@@ -25,7 +26,7 @@ export async function getExercises() {
 const createExerciseSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  type: z.enum(["strength", "cardio", "flexibility"]),
+  type: z.enum(exerciseTypes).exclude(["rest"]),
 });
 
 export async function createExercises(formData: FormData) {

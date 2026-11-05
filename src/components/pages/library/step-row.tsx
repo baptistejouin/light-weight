@@ -1,3 +1,4 @@
+import type { ExerciseType } from "@drizzle/schema";
 import { For } from "solid-js";
 import { StepLabel } from "@/components/pages/library/step-label";
 import { TargetInput } from "@/components/pages/library/target-input";
@@ -14,7 +15,7 @@ export interface Step extends Targets {
   key: string;
   exerciseId: string;
   exerciseName: string;
-  exerciseType: string;
+  exerciseType: ExerciseType;
 }
 
 interface StepRowProps {
