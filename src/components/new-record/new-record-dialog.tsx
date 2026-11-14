@@ -14,23 +14,7 @@ interface NewRecordDialogProps {
 }
 
 export function NewRecordDialog(props: NewRecordDialogProps) {
-  const exercises = createAsync(() => getExercises());
-  const workouts = createAsync(() => getWorkouts());
   const submitRecord = useAction(createRecord);
-
-  const exerciseOptions = () => {
-    const list = exercises();
-    if (!list) return [];
-    return list
-      .filter((e) => e.type !== "rest")
-      .map((e) => ({ label: e.name, value: e.id }));
-  };
-
-  const workoutOptions = () => {
-    const list = workouts();
-    if (!list) return [];
-    return list.map((w) => ({ label: w.name, value: w.id }));
-  };
 
   function handleSubmit(formData: FormData) {
     formData.set("kind", props.kind);
@@ -44,16 +28,7 @@ export function NewRecordDialog(props: NewRecordDialogProps) {
       title={`New ${recordKindLabel[props.kind]} Record`}
       onSubmit={handleSubmit}
     >
-      <Show when={props.kind === "activity"}>
-        <Select
-          name="exerciseId"
-          label="Exercise"
-          options={exerciseOptions()}
-        />
-      </Show>
-      <Show when={props.kind === "workout"}>
-        <Select name="workoutId" label="Workout" options={workoutOptions()} />
-      </Show>
+      <RecordSourceSelect kind={props.kind} />
 
       <Input name="title" label="Title" />
       <Input name="description" label="Notes" />
@@ -72,5 +47,41 @@ export function NewRecordDialog(props: NewRecordDialogProps) {
         required
       />
     </FormDialog>
+  );
+}
+
+// Queries live here so they only run while the dialog is open: the dialog is
+// mounted on every page, and getWorkouts redirects logged-out users to /login
+function RecordSourceSelect(props: { kind: RecordKind }) {
+  const exercises = createAsync(() => getExercises());
+  const workouts = createAsync(() => getWorkouts());
+
+  const exerciseOptions = () => {
+    const list = exercises();
+    if (!list) return [];
+    return list
+      .filter((e) => e.type !== "rest")
+      .map((e) => ({ label: e.name, value: e.id }));
+  };
+
+  const workoutOptions = () => {
+    const list = workouts();
+    if (!list) return [];
+    return list.map((w) => ({ label: w.name, value: w.id }));
+  };
+
+  return (
+    <>
+      <Show when={props.kind === "activity"}>
+        <Select
+          name="exerciseId"
+          label="Exercise"
+          options={exerciseOptions()}
+        />
+      </Show>
+      <Show when={props.kind === "workout"}>
+        <Select name="workoutId" label="Workout" options={workoutOptions()} />
+      </Show>
+    </>
   );
 }

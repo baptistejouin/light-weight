@@ -1,12 +1,5 @@
-import {
-  createContext,
-  createSignal,
-  type JSX,
-  Show,
-  useContext,
-} from "solid-js";
+import { createContext, createSignal, type JSX, useContext } from "solid-js";
 import { NewRecordDialog } from "@/components/new-record/new-record-dialog";
-import { QueryBoundary } from "@/components/ui/error-message";
 import type { RecordKind } from "@/lib/record-kind";
 
 interface NewRecordContextValue {
@@ -16,18 +9,24 @@ interface NewRecordContextValue {
 const NewRecordContext = createContext<NewRecordContextValue>();
 
 export function NewRecordProvider(props: { children: JSX.Element }) {
-  const [kind, setKind] = createSignal<RecordKind | null>(null);
+  const [dialogOpen, setDialogOpen] = createSignal(false);
+  const [kind, setKind] = createSignal<RecordKind>("activity");
+
+  function openDialog(nextKind: RecordKind) {
+    setKind(nextKind);
+    setDialogOpen(true);
+  }
+
+  const handleClose = () => setDialogOpen(false);
 
   return (
-    <NewRecordContext.Provider value={{ open: setKind }}>
+    <NewRecordContext.Provider value={{ open: openDialog }}>
       {props.children}
-      <Show when={kind()}>
-        {(kind) => (
-          <QueryBoundary>
-            <NewRecordDialog open kind={kind()} onClose={() => setKind(null)} />
-          </QueryBoundary>
-        )}
-      </Show>
+      <NewRecordDialog
+        open={dialogOpen()}
+        kind={kind()}
+        onClose={handleClose}
+      />
     </NewRecordContext.Provider>
   );
 }

@@ -1,12 +1,20 @@
 // @refresh reload
 import { Router, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { type JSX, Show, Suspense } from "solid-js";
+import {
+  createEffect,
+  ErrorBoundary,
+  type JSX,
+  on,
+  Show,
+  Suspense,
+} from "solid-js";
 import "./app.css";
 import AppHeader from "@/components/app-header";
 import { Layout } from "@/components/layout";
 import Navigation from "@/components/navigation";
 import { NewRecordProvider } from "@/components/new-record/context";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 export default function App() {
   return (
@@ -27,7 +35,13 @@ function Root(props: { children?: JSX.Element }) {
           <AppHeader />
         </Show>
         <div class="flex flex-1 flex-col pb-8">
-          <Suspense>{props.children}</Suspense>
+          <ErrorBoundary
+            fallback={(error, reset) => (
+              <PageError message={error.message} reset={reset} />
+            )}
+          >
+            <Suspense>{props.children}</Suspense>
+          </ErrorBoundary>
         </div>
         <Show when={!isLoginPage()}>
           <Navigation />
@@ -35,4 +49,19 @@ function Root(props: { children?: JSX.Element }) {
       </Layout>
     </NewRecordProvider>
   );
+}
+
+// ErrorBoundary keeps its fallback until reset, so retry on navigation
+function PageError(props: { message: string; reset: () => void }) {
+  const location = useLocation();
+
+  createEffect(
+    on(
+      () => location.pathname + location.search,
+      () => props.reset(),
+      { defer: true },
+    ),
+  );
+
+  return <ErrorMessage>{props.message}</ErrorMessage>;
 }
