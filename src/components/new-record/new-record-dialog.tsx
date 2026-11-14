@@ -1,11 +1,14 @@
 import { createAsync, useAction } from "@solidjs/router";
 import { Show } from "solid-js";
 import { createRecord, getExercises, getWorkouts } from "@/api";
+import { DurationPicker } from "@/components/ui/duration-picker";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { nowForDatetimeLocal } from "@/lib/date";
 import { type RecordKind, recordKindLabel } from "@/lib/record-kind";
+
+const defaultDurationSeconds = 3600;
 
 interface NewRecordDialogProps {
   open: boolean;
@@ -39,12 +42,11 @@ export function NewRecordDialog(props: NewRecordDialogProps) {
         required
         defaultValue={nowForDatetimeLocal()}
       />
-      <Input
-        type="number"
-        min="1"
-        name="durationMinutes"
-        label="Duration (minutes)"
-        required
+      <DurationPicker
+        name="durationSeconds"
+        label="Duration"
+        units={["hours", "minutes"]}
+        defaultValue={defaultDurationSeconds}
       />
     </FormDialog>
   );

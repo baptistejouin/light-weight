@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
-import { formatDuration } from "@/lib/format";
+import { formatDuration } from "@/lib/duration";
 
 interface PeriodSummaryProps {
   label: string;

@@ -1,13 +1,15 @@
 import type { ExerciseType } from "@drizzle/schema";
-import { For } from "solid-js";
+import { For, Match, Switch } from "solid-js";
 import { StepLabel } from "@/components/pages/library/step-label";
-import { TargetInput } from "@/components/pages/library/target-input";
+import { DurationPicker } from "@/components/ui/duration-picker";
+import { NumberPicker } from "@/components/ui/number-picker";
 import { isBuiltIn } from "@/lib/built-in-exercises";
 import {
   type TargetField,
   type Targets,
+  targetDurationUnits,
   targetFieldsFor,
-  targetInputConfig,
+  targetPickerConfig,
 } from "@/lib/exercise-targets";
 import { cn } from "@/lib/utils";
 
@@ -32,9 +34,8 @@ export function StepRow(props: StepRowProps) {
   const fields = () => targetFieldsFor(props.step.exerciseType);
   const builtIn = () => isBuiltIn(props.step.exerciseType);
 
-  function updateTarget(field: TargetField, value: number | undefined) {
-    props.onUpdate({ [field]: value });
-  }
+  const targetUpdater = (field: TargetField) => (value: number) =>
+    props.onUpdate({ [field]: value || undefined });
 
   return (
     <li
@@ -84,14 +85,30 @@ export function StepRow(props: StepRowProps) {
           </button>
         </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <For each={fields()}>
           {(field) => (
-            <TargetInput
-              {...targetInputConfig[field]}
-              value={props.step[field]}
-              onChange={(value) => updateTarget(field, value)}
-            />
+            <Switch>
+              <Match when={field === "targetDurationSeconds"}>
+                <DurationPicker
+                  label="Target duration"
+                  units={targetDurationUnits}
+                  variant="compact"
+                  value={props.step.targetDurationSeconds ?? 0}
+                  onChange={targetUpdater("targetDurationSeconds")}
+                />
+              </Match>
+              <Match when={field !== "targetDurationSeconds" && field}>
+                {(numericField) => (
+                  <NumberPicker
+                    {...targetPickerConfig[numericField()]}
+                    variant="compact"
+                    value={props.step[numericField()] ?? 0}
+                    onChange={targetUpdater(numericField())}
+                  />
+                )}
+              </Match>
+            </Switch>
           )}
         </For>
       </div>

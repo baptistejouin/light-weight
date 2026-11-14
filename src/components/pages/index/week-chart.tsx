@@ -1,7 +1,8 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import { createMemo, For, Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
-import { formatDuration, recordName } from "@/lib/format";
+import { formatDuration } from "@/lib/duration";
+import { recordName } from "@/lib/format";
 import type { RecordsByDay } from "@/lib/records";
 
 interface WeekChartProps {
@@ -54,7 +55,7 @@ export function WeekChart(props: WeekChartProps) {
                 fallback={<div class="h-1 w-full rounded-t-sm bg-gray-100" />}
               >
                 <span class="text-black text-xs leading-4">
-                  {formatDuration(column.total, { short: true })}
+                  {formatDuration(column.total, ["minutes"])}
                 </span>
                 <div
                   class="flex w-full flex-col-reverse gap-0.5 overflow-hidden rounded-t-md"

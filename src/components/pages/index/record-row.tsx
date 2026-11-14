@@ -2,7 +2,8 @@ import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
 import { CardHeader } from "@/components/ui/card";
 import { SwipeActions } from "@/components/ui/swipe-actions";
-import { formatDate, formatDuration, recordName } from "@/lib/format";
+import { formatDuration } from "@/lib/duration";
+import { formatDate, recordName } from "@/lib/format";
 import { recordKindLabel } from "@/lib/record-kind";
 
 interface RecordRowProps {

@@ -1,4 +1,5 @@
 import type { ExerciseType } from "@drizzle/schema";
+import type { DurationUnit } from "@/lib/duration";
 
 export type TargetField =
   | "targetSets"
@@ -15,14 +16,21 @@ const targetFieldsByType: Record<ExerciseType, TargetField[]> = {
   rest: ["targetDurationSeconds"],
 };
 
-export const targetInputConfig: Record<
-  TargetField,
-  { placeholder: string; step: string; class?: string }
+export const targetDurationUnits: DurationUnit[] = [
+  "hours",
+  "minutes",
+  "seconds",
+];
+
+type NumericTargetField = Exclude<TargetField, "targetDurationSeconds">;
+
+export const targetPickerConfig: Record<
+  NumericTargetField,
+  { label: string; unit: string; max: number; step: number }
 > = {
-  targetSets: { placeholder: "sets", step: "1" },
-  targetReps: { placeholder: "reps", step: "1" },
-  targetWeightKg: { placeholder: "kg", step: "0.5" },
-  targetDurationSeconds: { placeholder: "seconds", step: "1", class: "w-20" },
+  targetSets: { label: "Target sets", unit: "sets", max: 20, step: 1 },
+  targetReps: { label: "Target reps", unit: "reps", max: 100, step: 1 },
+  targetWeightKg: { label: "Target weight", unit: "kg", max: 300, step: 0.25 },
 };
 
 export function targetFieldsFor(exerciseType: ExerciseType) {

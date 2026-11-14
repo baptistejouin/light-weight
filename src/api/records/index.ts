@@ -37,7 +37,10 @@ const createRecordSchema = z
     title: z.string().optional(),
     description: z.string().optional(),
     startedAt: z.string().min(1),
-    durationMinutes: z.coerce.number().int().positive(),
+    durationSeconds: z.coerce
+      .number()
+      .int()
+      .positive("Duration must be longer than zero"),
   })
   .refine(
     (data) => (data.kind === "activity" ? !!data.exerciseId : !!data.workoutId),
@@ -73,7 +76,7 @@ export async function createRecord(formData: FormData) {
         title: data.title || null,
         notes: data.description || null,
         performedAt,
-        durationSeconds: data.durationMinutes * 60,
+        durationSeconds: data.durationSeconds,
       })
       .run(),
   );
