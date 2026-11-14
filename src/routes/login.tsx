@@ -1,19 +1,14 @@
-import { type RouteSectionProps, useSubmission } from "@solidjs/router";
+import { useSubmission } from "@solidjs/router";
 import { Show } from "solid-js";
 import { validateAndLogin } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default function Login(props: RouteSectionProps) {
+export default function Login() {
   const loggingIn = useSubmission(validateAndLogin);
 
   return (
     <form action={validateAndLogin} method="post" class="flex flex-col gap-2">
-      <input
-        type="hidden"
-        name="redirectTo"
-        value={props.params.redirectTo ?? "/"}
-      />
       <Input name="username" label="Username" />
       <Input name="password" label="Password" type="password" />
       <Button type="submit">Login</Button>

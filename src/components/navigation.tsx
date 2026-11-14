@@ -36,7 +36,7 @@ function NavLink(props: NavLinkProps) {
 
 export default function Navigation() {
   return (
-    <nav class="sticky bottom-0 -mx-4 mt-auto border-primary/10 border-t bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav class="sticky bottom-0 -mx-4 mt-auto border-primary/10 border-t bg-white">
       <ul class="flex">
         <NavLink href="/" label="Home" icon={HomeIcon} />
         <li class="flex-1">
