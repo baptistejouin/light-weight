@@ -32,7 +32,7 @@ export function Button(props: ButtonProps) {
 
   const classes = () =>
     cn(
-      "inline cursor-pointer rounded-full capitalize",
+      "inline cursor-pointer rounded-full capitalize disabled:cursor-not-allowed disabled:opacity-50",
       sizeClasses[local.size ?? "md"],
       variantClasses[local.variant ?? "primary"],
       local.class,

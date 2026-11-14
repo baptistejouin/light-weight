@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 interface DialogProps {
   open: boolean;
   onClose: () => void;
+  preventClose?: boolean;
   children: JSX.Element;
   class?: string;
   "aria-label"?: string;
@@ -23,6 +24,16 @@ export function Dialog(props: DialogProps) {
     }
   });
 
+  function handleCancel(e: Event) {
+    if (props.preventClose) e.preventDefault();
+  }
+
+  // Browsers can skip the cancel event when Esc is pressed repeatedly
+  function handleNativeClose() {
+    if (props.preventClose) dialogRef.showModal();
+    else props.onClose();
+  }
+
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === dialogRef) props.onClose();
   }
@@ -31,7 +42,8 @@ export function Dialog(props: DialogProps) {
     // biome-ignore lint/a11y/useKeyWithClickEvents: dialog support natively escape
     <dialog
       ref={dialogRef}
-      onClose={props.onClose}
+      onCancel={handleCancel}
+      onClose={handleNativeClose}
       onClick={handleBackdropClick}
       aria-modal="true"
       aria-label={props["aria-label"]}
@@ -53,6 +65,7 @@ interface DialogHeaderProps {
   id?: string;
   children: JSX.Element;
   onClose?: () => void;
+  closeDisabled?: boolean;
   class?: string;
 }
 
@@ -61,6 +74,7 @@ export function DialogHeader(props: DialogHeaderProps) {
     "id",
     "children",
     "onClose",
+    "closeDisabled",
     "class",
   ]);
   return (
@@ -78,8 +92,9 @@ export function DialogHeader(props: DialogHeaderProps) {
         <button
           type="button"
           onClick={local.onClose}
+          disabled={local.closeDisabled}
           aria-label="Close dialog"
-          class="-mr-1 cursor-pointer rounded-full p-1 transition-colors hover:bg-black/5"
+          class="-mr-1 cursor-pointer rounded-full p-1 transition-colors enabled:hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <CloseIcon aria-hidden="true" class="size-4.5" />
         </button>

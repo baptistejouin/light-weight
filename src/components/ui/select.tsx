@@ -88,7 +88,6 @@ export function Select(props: SelectProps) {
       popoverRef={(el) => (listboxRef = el)}
       onOpenChange={handleOpenChange}
       onTriggerKeyDown={handleTriggerKeyDown}
-      onReset={field.reset}
     >
       <div
         role="listbox"

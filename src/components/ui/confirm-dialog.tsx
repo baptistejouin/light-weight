@@ -26,6 +26,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
   const confirm = createPendingAction(() => props.onConfirm(), handleClose);
 
   function handleClose() {
+    if (confirm.pending()) return;
     confirm.reset();
     props.onClose();
   }
@@ -36,10 +37,15 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
     <Dialog
       open={props.open}
       onClose={handleClose}
+      preventClose={confirm.pending()}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
     >
-      <DialogHeader id={titleId} onClose={handleClose}>
+      <DialogHeader
+        id={titleId}
+        onClose={handleClose}
+        closeDisabled={confirm.pending()}
+      >
         {props.title}
       </DialogHeader>
       <DialogContent class="flex flex-col gap-3">
@@ -49,7 +55,12 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
         </Show>
       </DialogContent>
       <DialogFooter>
-        <Button type="button" variant="secondary" onClick={handleClose}>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={confirm.pending()}
+          onClick={handleClose}
+        >
           Cancel
         </Button>
         <Button

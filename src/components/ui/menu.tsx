@@ -50,6 +50,14 @@ export function Menu(props: MenuProps) {
     onClick: () => setOpen((v) => !v),
   };
 
+  // Removing the focused item would otherwise drop focus to the body, and a
+  // dialog opened by the item would have nothing to return focus to
+  function selectItem(item: MenuItem) {
+    menuRef.querySelector<HTMLElement>("[aria-haspopup=menu]")?.focus();
+    setOpen(false);
+    item.onSelect();
+  }
+
   createEffect(() => {
     if (!open()) return;
 
@@ -86,10 +94,7 @@ export function Menu(props: MenuProps) {
                 type="button"
                 role="menuitem"
                 class={popoverItemClass}
-                onClick={() => {
-                  setOpen(false);
-                  item.onSelect();
-                }}
+                onClick={() => selectItem(item)}
               >
                 {item.label}
               </button>

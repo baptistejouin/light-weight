@@ -18,7 +18,5 @@ export function createFieldValue<T>(props: FieldValueProps<T>, fallback: T) {
     props.onChange?.(next);
   }
 
-  const reset = () => setInternal(() => props.defaultValue ?? fallback);
-
-  return { value, setValue, reset };
+  return { value, setValue };
 }
