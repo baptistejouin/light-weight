@@ -25,7 +25,7 @@ interface ActivityOverviewProps {
 export function ActivityOverview(props: ActivityOverviewProps) {
   const [selected, setAnchor] = createSignal(Temporal.Now.plainDateISO());
 
-  let viewArea: HTMLDivElement | undefined;
+  let viewAreaRef!: HTMLDivElement;
 
   const isWeek = () => props.timeScale === "week";
   const periodOf = (date: Temporal.PlainDate) =>
@@ -58,14 +58,14 @@ export function ActivityOverview(props: ActivityOverviewProps) {
     setAnchor(next);
   }
 
-  createHorizontalSwipe(() => viewArea, {
+  createHorizontalSwipe(() => viewAreaRef, {
     onSwipeLeft: () => shiftPeriod(1),
     onSwipeRight: () => shiftPeriod(-1),
   });
 
   return (
     <div class="flex min-h-0 flex-1 flex-col gap-3">
-      <div ref={viewArea} class="flex flex-1 flex-col">
+      <div ref={viewAreaRef} class="flex flex-1 flex-col">
         <Switch>
           <Match when={props.timeScale === "week"}>
             <WeekView

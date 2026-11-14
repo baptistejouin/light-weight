@@ -32,9 +32,9 @@ interface SwipeActionsProps {
 const wheelSettleDelay = 150;
 
 export function SwipeActions(props: SwipeActionsProps) {
-  let root: HTMLDivElement | undefined;
-  let actionsRef: HTMLDivElement | undefined;
-  let content: HTMLDivElement | undefined;
+  let containerRef!: HTMLDivElement;
+  let actionsRef!: HTMLDivElement;
+  let contentRef!: HTMLDivElement;
   const [open, setOpen] = createSignal(false);
   const [dragOffset, setDragOffset] = createSignal<number | null>(null);
 
@@ -42,7 +42,7 @@ export function SwipeActions(props: SwipeActionsProps) {
   let dragBase = 0;
   let suppressClick = false;
 
-  const actionsWidth = () => actionsRef?.offsetWidth ?? 0;
+  const actionsWidth = () => actionsRef.offsetWidth;
   const offset = () => dragOffset() ?? (open() ? -actionsWidth() : 0);
   const clampOffset = (value: number) =>
     Math.min(0, Math.max(-actionsWidth(), value));
@@ -51,7 +51,7 @@ export function SwipeActions(props: SwipeActionsProps) {
   createEffect(() => {
     if (!open()) return;
     const onPointerDown = (e: PointerEvent) => {
-      if (root && !root.contains(e.target as Node)) setOpen(false);
+      if (!containerRef.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     onCleanup(() => document.removeEventListener("pointerdown", onPointerDown));
@@ -77,9 +77,7 @@ export function SwipeActions(props: SwipeActionsProps) {
 
   // iOS Safari cancels pointer events when it claims a touch for scrolling
   onMount(() => {
-    if (!content) return;
-    const el = content;
-    const stopTouchDrag = listenHorizontalTouchDrag(el, {
+    const stopTouchDrag = listenHorizontalTouchDrag(contentRef, {
       onStart: startDrag,
       onMove: moveDrag,
       onEnd: endDrag,
@@ -94,11 +92,11 @@ export function SwipeActions(props: SwipeActionsProps) {
       wheelSettle = setTimeout(endDrag, wheelSettleDelay);
     };
 
-    el.addEventListener("wheel", onWheel, { passive: false });
+    contentRef.addEventListener("wheel", onWheel, { passive: false });
     onCleanup(() => {
       stopTouchDrag();
       clearTimeout(wheelSettle);
-      el.removeEventListener("wheel", onWheel);
+      contentRef.removeEventListener("wheel", onWheel);
     });
   });
 
@@ -132,7 +130,7 @@ export function SwipeActions(props: SwipeActionsProps) {
   }
 
   function handleFocusOut(e: FocusEvent) {
-    if (!root?.contains(e.relatedTarget as Node)) setOpen(false);
+    if (!containerRef.contains(e.relatedTarget as Node)) setOpen(false);
   }
 
   function selectAction(action: SwipeAction) {
@@ -142,7 +140,7 @@ export function SwipeActions(props: SwipeActionsProps) {
 
   return (
     <div
-      ref={root}
+      ref={containerRef}
       onFocusOut={handleFocusOut}
       class={cn("relative overflow-hidden", props.class)}
     >
@@ -167,7 +165,7 @@ export function SwipeActions(props: SwipeActionsProps) {
         </For>
       </div>
       <div
-        ref={content}
+        ref={contentRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}

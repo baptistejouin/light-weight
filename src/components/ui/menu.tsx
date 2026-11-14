@@ -39,7 +39,7 @@ interface MenuProps {
 
 export function Menu(props: MenuProps) {
   const [open, setOpen] = createSignal(false);
-  let ref: HTMLDivElement | undefined;
+  let menuRef!: HTMLDivElement;
 
   const triggerProps: MenuTriggerProps = {
     type: "button",
@@ -54,7 +54,7 @@ export function Menu(props: MenuProps) {
     if (!open()) return;
 
     const onClick = (e: MouseEvent) => {
-      if (ref && !ref.contains(e.target as Node)) setOpen(false);
+      if (!menuRef.contains(e.target as Node)) setOpen(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -69,7 +69,7 @@ export function Menu(props: MenuProps) {
   });
 
   return (
-    <div ref={ref} class={cn("relative", props.class)}>
+    <div ref={menuRef} class={cn("relative", props.class)}>
       {props.trigger(triggerProps)}
       <Show when={open()}>
         <div

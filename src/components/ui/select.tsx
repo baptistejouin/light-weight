@@ -26,17 +26,15 @@ interface SelectProps {
 
 export function Select(props: SelectProps) {
   const field = createFieldValue(props, "");
-  let trigger: HTMLButtonElement | undefined;
-  let listbox: HTMLDivElement | undefined;
+  let triggerRef!: HTMLButtonElement;
+  let listboxRef!: HTMLDivElement;
 
   const value = () => field.value() || props.options[0]?.value;
   const selectedOption = () =>
     props.options.find((option) => option.value === value());
 
   const optionButtons = () =>
-    Array.from(
-      listbox?.querySelectorAll<HTMLButtonElement>("[role=option]") ?? [],
-    );
+    Array.from(listboxRef.querySelectorAll<HTMLButtonElement>("[role=option]"));
 
   function focusOption(index: number) {
     const buttons = optionButtons();
@@ -45,8 +43,8 @@ export function Select(props: SelectProps) {
 
   function choose(option: SelectOption) {
     field.setValue(option.value);
-    listbox?.hidePopover();
-    trigger?.focus();
+    listboxRef.hidePopover();
+    triggerRef.focus();
   }
 
   function handleOpenChange(isOpen: boolean) {
@@ -58,7 +56,7 @@ export function Select(props: SelectProps) {
   function handleTriggerKeyDown(e: KeyboardEvent) {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
-    listbox?.showPopover();
+    listboxRef.showPopover();
   }
 
   function handleListboxKeyDown(e: KeyboardEvent) {
@@ -86,8 +84,8 @@ export function Select(props: SelectProps) {
       formValue={value()}
       class={props.class}
       popoverClass="max-h-64 overflow-y-auto"
-      triggerRef={(el) => (trigger = el)}
-      popoverRef={(el) => (listbox = el)}
+      triggerRef={(el) => (triggerRef = el)}
+      popoverRef={(el) => (listboxRef = el)}
       onOpenChange={handleOpenChange}
       onTriggerKeyDown={handleTriggerKeyDown}
       onReset={field.reset}

@@ -13,24 +13,24 @@ interface DialogProps {
 }
 
 export function Dialog(props: DialogProps) {
-  let ref: HTMLDialogElement | undefined;
+  let dialogRef!: HTMLDialogElement;
 
   createEffect(() => {
     if (props.open) {
-      ref?.showModal();
+      dialogRef.showModal();
     } else {
-      ref?.close();
+      dialogRef.close();
     }
   });
 
   function handleBackdropClick(e: MouseEvent) {
-    if (e.target === ref) props.onClose();
+    if (e.target === dialogRef) props.onClose();
   }
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: dialog support natively escape
     <dialog
-      ref={ref}
+      ref={dialogRef}
       onClose={props.onClose}
       onClick={handleBackdropClick}
       aria-modal="true"
