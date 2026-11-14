@@ -9,7 +9,7 @@ export function getSession() {
   return useSession({ password, cookie: { secure: import.meta.env.PROD } });
 }
 
-export async function getSessionUserId() {
+export async function requireUserId() {
   const session = await getSession();
   const userId = session.data.userId;
   if (userId === undefined) throw redirect("/login");

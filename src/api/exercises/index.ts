@@ -8,18 +8,23 @@ import {
 } from "@drizzle/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { getSessionUserId } from "@/api/auth/session";
+import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
 import { isBuiltIn } from "@/lib/built-in-exercises";
+import { tryCatch } from "@/lib/try-catch";
 
 const getExerciseSchema = z.object({ id: z.uuid() });
 
 export async function getExercise({ id }: z.infer<typeof getExerciseSchema>) {
+  await requireUserId();
+
   return db.select().from(Exercises).where(eq(Exercises.id, id)).get();
 }
 
 export async function getExercises() {
+  await requireUserId();
+
   return db.select().from(Exercises).all();
 }
 
@@ -30,26 +35,28 @@ const createExerciseSchema = z.object({
 });
 
 export async function createExercises(formData: FormData) {
+  await requireUserId();
+
   const data = parseForm(createExerciseSchema, formData);
   if (data instanceof Error) return data;
 
-  try {
-    db.insert(Exercises)
+  const { error } = tryCatch(() =>
+    db
+      .insert(Exercises)
       .values({
         name: data.name,
         description: data.description,
         type: data.type,
       })
-      .run();
+      .run(),
+  );
+  if (error) return error;
 
-    return { success: true };
-  } catch (err) {
-    return err as Error;
-  }
+  return { success: true };
 }
 
 export async function deleteExercise(id: string) {
-  await getSessionUserId();
+  await requireUserId();
 
   const exercise = db
     .select()
@@ -74,9 +81,8 @@ export async function deleteExercise(id: string) {
     );
   }
 
-  try {
-    db.delete(Exercises).where(eq(Exercises.id, id)).run();
-  } catch (err) {
-    return err as Error;
-  }
+  const { error } = tryCatch(() =>
+    db.delete(Exercises).where(eq(Exercises.id, id)).run(),
+  );
+  if (error) return error;
 }

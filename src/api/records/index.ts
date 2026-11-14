@@ -2,17 +2,14 @@
 import { Exercises, Records, Workouts } from "@drizzle/schema";
 import { redirect } from "@solidjs/router";
 import { and, desc, eq } from "drizzle-orm";
-import { alias } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
-import { getSessionUserId } from "@/api/auth/session";
+import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
+import { tryCatch } from "@/lib/try-catch";
 
 export async function getRecords() {
-  const userId = await getSessionUserId();
-
-  const exercise = alias(Exercises, "record_exercise");
-  const workout = alias(Workouts, "record_workout");
+  const userId = await requireUserId();
 
   return db
     .select({
@@ -21,12 +18,12 @@ export async function getRecords() {
       notes: Records.notes,
       performedAt: Records.performedAt,
       durationSeconds: Records.durationSeconds,
-      exerciseName: exercise.name,
-      workoutName: workout.name,
+      exerciseName: Exercises.name,
+      workoutName: Workouts.name,
     })
     .from(Records)
-    .leftJoin(exercise, eq(Records.exerciseId, exercise.id))
-    .leftJoin(workout, eq(Records.workoutId, workout.id))
+    .leftJoin(Exercises, eq(Records.exerciseId, Exercises.id))
+    .leftJoin(Workouts, eq(Records.workoutId, Workouts.id))
     .where(eq(Records.userId, userId))
     .orderBy(desc(Records.performedAt))
     .all();
@@ -48,7 +45,7 @@ const createRecordSchema = z
   );
 
 export async function createRecord(formData: FormData) {
-  const userId = await getSessionUserId();
+  const userId = await requireUserId();
   const data = parseForm(createRecordSchema, formData);
   if (data instanceof Error) return data;
 
@@ -66,8 +63,9 @@ export async function createRecord(formData: FormData) {
     if (!workout) return new Error("Workout not found");
   }
 
-  try {
-    db.insert(Records)
+  const { error } = tryCatch(() =>
+    db
+      .insert(Records)
       .values({
         userId,
         exerciseId: data.kind === "activity" ? data.exerciseId : null,
@@ -77,24 +75,22 @@ export async function createRecord(formData: FormData) {
         performedAt,
         durationSeconds: data.durationMinutes * 60,
       })
-      .run();
-  } catch (err) {
-    return err as Error;
-  }
+      .run(),
+  );
+  if (error) return error;
 
   throw redirect("/");
 }
 
 export async function deleteRecord(id: string) {
-  const userId = await getSessionUserId();
+  const userId = await requireUserId();
 
-  try {
-    const result = db
+  const { data: result, error } = tryCatch(() =>
+    db
       .delete(Records)
       .where(and(eq(Records.id, id), eq(Records.userId, userId)))
-      .run();
-    if (result.changes === 0) return new Error("Record not found");
-  } catch (err) {
-    return err as Error;
-  }
+      .run(),
+  );
+  if (error) return error;
+  if (result.changes === 0) return new Error("Record not found");
 }

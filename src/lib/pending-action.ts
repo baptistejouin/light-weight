@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { tryCatchAsync } from "@/lib/try-catch";
 
 // The action may return an Error to report it without throwing
 export function createPendingAction<Args extends unknown[]>(
@@ -10,17 +11,23 @@ export function createPendingAction<Args extends unknown[]>(
 
   async function run(...args: Args) {
     setPending(true);
-    try {
-      const result = await action(...args);
-      if (result instanceof Error) {
-        setError(result);
-        return;
+    const { data: result, error: caught } = await tryCatchAsync<
+      unknown,
+      unknown
+    >(async () => action(...args));
+    setPending(false);
+
+    if (caught) {
+      if (caught instanceof Error) {
+        setError(caught);
+      } else {
+        setError(new Error(String(caught)));
       }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
       return;
-    } finally {
-      setPending(false);
+    }
+    if (result instanceof Error) {
+      setError(result);
+      return;
     }
 
     onSuccess();

@@ -8,14 +8,17 @@ import {
 import { redirect } from "@solidjs/router";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { getSessionUserId } from "@/api/auth/session";
+import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
 import { pickTargets } from "@/lib/exercise-targets";
+import { tryCatch } from "@/lib/try-catch";
 
 const REST_EXERCISE_NAME = "Rest";
 
 export async function getOrCreateRestExercise() {
+  await requireUserId();
+
   const existing = db
     .select()
     .from(Exercises)
@@ -29,7 +32,7 @@ export async function getOrCreateRestExercise() {
 }
 
 export async function getWorkouts() {
-  const userId = await getSessionUserId();
+  const userId = await requireUserId();
   const workouts = db
     .select()
     .from(Workouts)
@@ -81,14 +84,12 @@ const createWorkoutSchema = z.object({
 });
 
 export async function createWorkout(formData: FormData) {
-  const userId = await getSessionUserId();
+  const userId = await requireUserId();
 
-  let steps: unknown;
-  try {
-    steps = JSON.parse(String(formData.get("steps") ?? "[]"));
-  } catch {
-    return new Error("Invalid steps payload");
-  }
+  const { data: steps, error: stepsError } = tryCatch<unknown>(() =>
+    JSON.parse(String(formData.get("steps") ?? "[]")),
+  );
+  if (stepsError) return new Error("Invalid steps payload");
 
   const data = parseForm(createWorkoutSchema, {
     name: formData.get("name"),
@@ -111,36 +112,37 @@ export async function createWorkout(formData: FormData) {
       .map((e) => [e.id, e.type]),
   );
 
-  const values = [];
+  const values: Omit<typeof WorkoutExercises.$inferInsert, "workoutId">[] = [];
   for (const [index, { exerciseId, ...targets }] of data.steps.entries()) {
     const type = exerciseTypes.get(exerciseId);
     if (!type) return new Error("Unknown exercise");
     values.push({ exerciseId, order: index, ...pickTargets(targets, type) });
   }
 
-  try {
-    const workout = db
-      .insert(Workouts)
-      .values({
-        name: data.name,
-        description: data.description,
-        userId,
-      })
-      .returning()
-      .get();
+  const { error } = tryCatch(() =>
+    db.transaction((tx) => {
+      const workout = tx
+        .insert(Workouts)
+        .values({
+          name: data.name,
+          description: data.description,
+          userId,
+        })
+        .returning()
+        .get();
 
-    db.insert(WorkoutExercises)
-      .values(values.map((v) => ({ ...v, workoutId: workout.id })))
-      .run();
-  } catch (err) {
-    return err as Error;
-  }
+      tx.insert(WorkoutExercises)
+        .values(values.map((v) => ({ ...v, workoutId: workout.id })))
+        .run();
+    }),
+  );
+  if (error) return error;
 
   throw redirect("/library?tab=workouts");
 }
 
 export async function deleteWorkout(id: string) {
-  const userId = await getSessionUserId();
+  const userId = await requireUserId();
 
   const workout = db
     .select()
@@ -160,14 +162,13 @@ export async function deleteWorkout(id: string) {
     );
   }
 
-  try {
+  const { error } = tryCatch(() =>
     db.transaction((tx) => {
       tx.delete(WorkoutExercises)
         .where(eq(WorkoutExercises.workoutId, id))
         .run();
       tx.delete(Workouts).where(eq(Workouts.id, id)).run();
-    });
-  } catch (err) {
-    return err as Error;
-  }
+    }),
+  );
+  if (error) return error;
 }
