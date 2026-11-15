@@ -3,7 +3,7 @@ import { tryCatchAsync } from "@/lib/try-catch";
 
 // The action may return an Error to report it without throwing
 export function createPendingAction<Args extends unknown[]>(
-  action: (...args: Args) => Promise<unknown> | unknown,
+  action: (...args: Args) => unknown,
   onSuccess: () => void,
 ) {
   const [error, setError] = createSignal<Error | null>(null);

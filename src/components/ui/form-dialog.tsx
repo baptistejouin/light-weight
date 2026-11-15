@@ -14,7 +14,7 @@ interface FormDialogProps {
   onClose: () => void;
   title: string;
   // Return an Error to display it and keep the dialog open
-  onSubmit: (formData: FormData) => Promise<unknown> | unknown;
+  onSubmit: (formData: FormData) => unknown;
   children: JSX.Element;
 }
 

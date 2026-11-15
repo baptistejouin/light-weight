@@ -16,7 +16,7 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   pendingLabel: string;
   // Return an Error to display it and keep the dialog open
-  onConfirm: () => Promise<unknown> | unknown;
+  onConfirm: () => unknown;
   children: JSX.Element;
 }
 
