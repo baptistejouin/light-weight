@@ -1,8 +1,14 @@
-import { createEffect, type JSX, splitProps } from "solid-js";
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  Show,
+  splitProps,
+} from "solid-js";
 import { CloseIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-interface DialogProps {
+export interface DialogProps {
   open: boolean;
   onClose: () => void;
   preventClose?: boolean;
@@ -13,23 +19,49 @@ interface DialogProps {
   "aria-describedby"?: string;
 }
 
-export function Dialog(props: DialogProps) {
+export function DialogRoot(props: DialogProps) {
   let dialogRef!: HTMLDialogElement;
+  let closeId = 0;
+  const [closing, setClosing] = createSignal(false);
+  const mounted = () => props.open || closing();
 
   createEffect(() => {
     if (props.open) {
-      dialogRef.showModal();
-    } else {
-      dialogRef.close();
+      closeId++;
+      setClosing(false);
+      dialogRef.toggleAttribute("data-closing", false);
+      if (!dialogRef.open) dialogRef.showModal();
+    } else if (dialogRef.open) {
+      animateClose();
     }
   });
 
+  async function animateClose() {
+    const id = ++closeId;
+    setClosing(true);
+    dialogRef.toggleAttribute("data-closing", true);
+
+    const exits = dialogRef
+      .getAnimations({ subtree: true })
+      .filter((a) => (a.effect as KeyframeEffect | null)?.target === dialogRef);
+
+    await Promise.allSettled(exits.map((a) => a.finished));
+    if (id !== closeId) return;
+
+    dialogRef.toggleAttribute("data-closing", false);
+
+    dialogRef.close();
+    setClosing(false);
+  }
+
   function handleCancel(e: Event) {
-    if (props.preventClose) e.preventDefault();
+    e.preventDefault();
+    if (!props.preventClose) props.onClose();
   }
 
   // Browsers can skip the cancel event when Esc is pressed repeatedly
   function handleNativeClose() {
+    if (!props.open) return;
     if (props.preventClose) dialogRef.showModal();
     else props.onClose();
   }
@@ -49,14 +81,9 @@ export function Dialog(props: DialogProps) {
       aria-label={props["aria-label"]}
       aria-labelledby={props["aria-labelledby"]}
       aria-describedby={props["aria-describedby"]}
-      class={cn(
-        "m-auto w-full max-w-sm rounded-2xl p-0 shadow-xl",
-        "backdrop:bg-black/40 backdrop:backdrop-blur-sm",
-        "open:fade-in open:slide-in-from-bottom-4 open:animate-in",
-        props.class,
-      )}
+      class={props.class}
     >
-      {props.children}
+      <Show when={mounted()}>{props.children}</Show>
     </dialog>
   );
 }

@@ -1,12 +1,12 @@
 import { createUniqueId, type JSX, Show } from "solid-js";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ModalDialog } from "@/components/ui/modal-dialog";
 import { createPendingAction } from "@/lib/pending-action";
 
 interface ConfirmDialogProps {
@@ -34,7 +34,7 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
   const handleConfirm = () => confirm.run();
 
   return (
-    <Dialog
+    <ModalDialog
       open={props.open}
       onClose={handleClose}
       preventClose={confirm.pending()}
@@ -72,6 +72,6 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
           {confirm.pending() ? props.pendingLabel : props.confirmLabel}
         </Button>
       </DialogFooter>
-    </Dialog>
+    </ModalDialog>
   );
 }
