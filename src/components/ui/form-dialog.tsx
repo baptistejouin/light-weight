@@ -44,13 +44,7 @@ export function FormDialog(props: FormDialogProps) {
       aria-labelledby={titleId}
     >
       <form onSubmit={handleSubmit} class="flex min-h-full flex-col">
-        <DialogHeader
-          id={titleId}
-          onClose={handleClose}
-          closeDisabled={submit.pending()}
-        >
-          {props.title}
-        </DialogHeader>
+        <DialogHeader id={titleId}>{props.title}</DialogHeader>
         <DialogContent class="flex flex-1 flex-col gap-3">
           {props.children}
           <Show when={submit.error()}>

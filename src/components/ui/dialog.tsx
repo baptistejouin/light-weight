@@ -6,6 +6,7 @@ import {
   splitProps,
 } from "solid-js";
 import { CloseIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface DialogProps {
@@ -112,19 +113,21 @@ export function DialogHeader(props: DialogHeaderProps) {
         local.class,
       )}
     >
-      <h2 id={local.id} class="font-semibold text-base">
+      <h2 id={local.id} class="font-semibold text-2xl">
         {local.children}
       </h2>
       {local.onClose && (
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={local.onClose}
           disabled={local.closeDisabled}
           aria-label="Close dialog"
-          class="-mr-1 cursor-pointer rounded-full p-1 transition-colors enabled:hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+          class="-mr-1"
         >
           <CloseIcon aria-hidden="true" class="size-4.5" />
-        </button>
+        </Button>
       )}
     </div>
   );

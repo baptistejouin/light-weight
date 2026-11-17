@@ -1,5 +1,6 @@
 import { createSignal, createUniqueId, type JSX, Show } from "solid-js";
 import { ChevronDownIcon } from "@/components/icons";
+import { fieldLabelClass, fieldSurfaceClass } from "@/components/ui/input";
 import { popoverSurfaceClass } from "@/components/ui/popover-styles";
 import { cn } from "@/lib/utils";
 
@@ -10,10 +11,10 @@ const variantClasses: Record<
   { container: string; label?: string; trigger: string; open: string }
 > = {
   outline: {
-    container: "flex flex-col",
-    trigger:
-      "justify-between gap-2 rounded-full px-3 py-3 outline outline-primary focus-within:bg-primary/5 focus-within:outline-primary",
-    open: "bg-primary/5",
+    container: "flex flex-col gap-1.5",
+    label: fieldLabelClass,
+    trigger: cn("justify-between gap-2", fieldSurfaceClass),
+    open: "ring-2",
   },
   inline: {
     container: "inline-flex",
@@ -25,8 +26,9 @@ const variantClasses: Record<
   compact: {
     container: "inline-flex",
     label: "sr-only",
-    trigger: "gap-1 rounded-full px-2 py-1 text-xs outline outline-primary/50",
-    open: "bg-primary/5",
+    trigger:
+      "h-8 gap-1 rounded-md bg-gray-100 px-2.5 text-sm outline-none ring-gray-300 focus-visible:ring-2",
+    open: "ring-2",
   },
 };
 
