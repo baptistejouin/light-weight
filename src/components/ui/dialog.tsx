@@ -15,6 +15,7 @@ export interface DialogProps {
   preventClose?: boolean;
   children: JSX.Element;
   class?: string;
+  style?: JSX.CSSProperties;
   "aria-label"?: string;
   "aria-labelledby"?: string;
   "aria-describedby"?: string;
@@ -68,7 +69,7 @@ export function DialogRoot(props: DialogProps) {
   }
 
   function handleBackdropClick(e: MouseEvent) {
-    if (e.target === dialogRef) props.onClose();
+    if (e.target === dialogRef && !props.preventClose) props.onClose();
   }
 
   return (
@@ -83,6 +84,7 @@ export function DialogRoot(props: DialogProps) {
       aria-labelledby={props["aria-labelledby"]}
       aria-describedby={props["aria-describedby"]}
       class={props.class}
+      style={props.style}
     >
       <Show when={mounted()}>{props.children}</Show>
     </dialog>
