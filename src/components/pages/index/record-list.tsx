@@ -1,8 +1,9 @@
 import { useAction } from "@solidjs/router";
-import { createSignal, For, Show } from "solid-js";
+import { createSignal } from "solid-js";
 import { deleteRecord } from "@/api";
 import type { WorkoutRecord } from "@/api/types";
 import { RecordRow } from "@/components/pages/index/record-row";
+import { CardList } from "@/components/ui/card-list";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { recordName } from "@/lib/format";
 
@@ -28,15 +29,9 @@ export function RecordList(props: RecordListProps) {
 
   return (
     <>
-      <Show when={props.records.length > 0}>
-        <ul class="-mx-4 mt-4 divide-y divide-gray-200">
-          <For each={props.records}>
-            {(record) => (
-              <RecordRow record={record} onDelete={setRecordToDelete} />
-            )}
-          </For>
-        </ul>
-      </Show>
+      <CardList each={props.records} class="mt-4">
+        {(record) => <RecordRow record={record} onDelete={setRecordToDelete} />}
+      </CardList>
       <ConfirmDialog
         open={!!recordToDelete()}
         onClose={handleClose}
