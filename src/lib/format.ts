@@ -61,3 +61,12 @@ export function formatWeekRange(start: Temporal.PlainDate) {
     day.toLocaleString("en", { month: "short", day: "numeric" });
   return `${format(start)} – ${format(end)}, ${end.year}`;
 }
+
+const pluralRules = new Intl.PluralRules("en");
+
+export function pluralize(
+  count: number,
+  forms: Partial<Record<Intl.LDMLPluralRule, string>> & { other: string },
+) {
+  return `${count} ${forms[pluralRules.select(count)] ?? forms.other}`;
+}

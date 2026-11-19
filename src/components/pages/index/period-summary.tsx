@@ -1,6 +1,7 @@
 import { Show } from "solid-js";
 import type { WorkoutRecord } from "@/api/types";
 import { formatDuration } from "@/lib/duration";
+import { pluralize } from "@/lib/format";
 
 interface PeriodSummaryProps {
   label: string;
@@ -16,7 +17,7 @@ export function PeriodSummary(props: PeriodSummaryProps) {
       ),
     );
   const sessionsLabel = () =>
-    `${props.records.length} ${props.records.length === 1 ? "session" : "sessions"}`;
+    pluralize(props.records.length, { one: "session", other: "sessions" });
 
   return (
     <p class="px-1 text-gray-400 text-sm">

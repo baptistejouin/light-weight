@@ -39,13 +39,13 @@ export default function Home() {
     <div class="flex flex-1 flex-col gap-6">
       <div class="flex flex-col gap-4">
         <PageHeader title="Activities" />
-        <SegmentedControl
-          items={timeScaleValues}
-          value={timeScale()}
-          onChange={setTimeScale}
-        />
+        <HeaderSummary lastRecord={lastRecord()} />
       </div>
-      <HeaderSummary lastRecord={lastRecord()} />
+      <SegmentedControl
+        items={timeScaleValues}
+        value={timeScale()}
+        onChange={setTimeScale}
+      />
       <ActivityOverview timeScale={timeScale()} recordsByDay={recordsByDay()} />
     </div>
   );
