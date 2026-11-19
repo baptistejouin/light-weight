@@ -33,10 +33,12 @@ export async function getOrCreateRestExercise() {
 
 export async function getWorkouts() {
   const userId = await requireUserId();
+
   const workouts = db
     .select()
     .from(Workouts)
     .where(eq(Workouts.userId, userId))
+    .orderBy(asc(Workouts.name))
     .all();
 
   if (workouts.length === 0) return [];

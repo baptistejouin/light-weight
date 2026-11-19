@@ -1,5 +1,5 @@
 import { createAsync, useAction } from "@solidjs/router";
-import { createSignal } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import {
   createWorkout,
   deleteWorkout,
@@ -8,17 +8,20 @@ import {
   getWorkouts,
 } from "@/api";
 import type { Workout } from "@/api/types";
+import { LibraryToolbar } from "@/components/pages/library/library-toolbar";
 import { StepBuilder } from "@/components/pages/library/step-builder";
 import type { Step } from "@/components/pages/library/step-row";
 import { WorkoutCard } from "@/components/pages/library/workout-card";
-import { AddCardButton } from "@/components/ui/add-card-button";
 import { CardList } from "@/components/ui/card-list";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
+import { SearchEmptyState } from "@/components/ui/search-empty-state";
+import { createDebouncedSearch, filterByName } from "@/lib/debounced-search";
 import { pickTargets } from "@/lib/exercise-targets";
 
 export function WorkoutsTab() {
+  const { query, searchTerm, setQuery } = createDebouncedSearch();
   const workouts = createAsync(() => getWorkouts());
   const exercises = createAsync(() => getExercises());
   const restExercise = createAsync(() => getOrCreateRestExercise());
@@ -33,6 +36,10 @@ export function WorkoutsTab() {
     setSteps([]);
     setDialogOpen(true);
   }
+
+  const matchingWorkouts = createMemo(() =>
+    filterByName(workouts(), searchTerm()),
+  );
 
   const handleDeleteClose = () => setWorkoutToDelete(undefined);
 
@@ -60,12 +67,28 @@ export function WorkoutsTab() {
 
   return (
     <>
-      <AddCardButton onClick={openDialog}>New workout</AddCardButton>
-      <CardList each={workouts()} fallback="No workouts yet.">
-        {(workout) => (
-          <WorkoutCard workout={workout} onDelete={setWorkoutToDelete} />
-        )}
-      </CardList>
+      <div class="flex flex-col gap-4">
+        <LibraryToolbar
+          searchLabel="Search workouts"
+          query={query()}
+          onQueryChange={setQuery}
+          addLabel="New workout"
+          onAdd={openDialog}
+        />
+        <CardList
+          each={matchingWorkouts()}
+          fallback={
+            <SearchEmptyState
+              searchTerm={searchTerm()}
+              emptyLabel="No workouts yet."
+            />
+          }
+        >
+          {(workout) => (
+            <WorkoutCard workout={workout} onDelete={setWorkoutToDelete} />
+          )}
+        </CardList>
+      </div>
       <FormDialog
         open={dialogOpen()}
         onClose={() => setDialogOpen(false)}

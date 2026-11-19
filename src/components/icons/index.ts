@@ -6,6 +6,7 @@ export { CloseIcon } from "./close-icon";
 export { HomeIcon } from "./home-icon";
 export { LibraryIcon } from "./library-icon";
 export { PlusIcon } from "./plus-icon";
+export { SearchIcon } from "./search-icon";
 export { TimerIcon } from "./timer-icon";
 export { TrashIcon } from "./trash-icon";
 export { WeightIcon } from "./weight-icon";

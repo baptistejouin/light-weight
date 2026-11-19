@@ -6,7 +6,7 @@ import {
   Records,
   WorkoutExercises,
 } from "@drizzle/schema";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
@@ -25,7 +25,7 @@ export async function getExercise({ id }: z.infer<typeof getExerciseSchema>) {
 export async function getExercises() {
   await requireUserId();
 
-  return db.select().from(Exercises).all();
+  return db.select().from(Exercises).orderBy(asc(Exercises.name)).all();
 }
 
 const createExerciseSchema = z.object({
