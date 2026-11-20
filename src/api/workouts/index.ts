@@ -11,7 +11,7 @@ import { z } from "zod";
 import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
-import { pickTargets } from "@/lib/exercise-targets";
+import { defaultMetricsByType, pickTargets } from "@/lib/exercise-targets";
 import { tryCatch } from "@/lib/try-catch";
 
 const REST_EXERCISE_NAME = "Rest";
@@ -26,7 +26,13 @@ export async function getOrCreateRestExercise() {
     .get();
   if (existing) return existing;
 
-  db.insert(Exercises).values({ name: REST_EXERCISE_NAME, type: "rest" }).run();
+  db.insert(Exercises)
+    .values({
+      name: REST_EXERCISE_NAME,
+      type: "rest",
+      metrics: defaultMetricsByType.rest,
+    })
+    .run();
 
   return db.select().from(Exercises).where(eq(Exercises.type, "rest")).get();
 }
@@ -51,8 +57,10 @@ export async function getWorkouts() {
       targetReps: WorkoutExercises.targetReps,
       targetDurationSeconds: WorkoutExercises.targetDurationSeconds,
       targetWeightKg: WorkoutExercises.targetWeightKg,
+      targetDistanceM: WorkoutExercises.targetDistanceM,
       exerciseName: Exercises.name,
       exerciseType: Exercises.type,
+      exerciseMetrics: Exercises.metrics,
     })
     .from(WorkoutExercises)
     .innerJoin(Exercises, eq(WorkoutExercises.exerciseId, Exercises.id))
@@ -77,6 +85,7 @@ const stepSchema = z.object({
   targetReps: z.number().int().positive().optional(),
   targetDurationSeconds: z.number().int().positive().optional(),
   targetWeightKg: z.number().positive().optional(),
+  targetDistanceM: z.number().positive().optional(),
 });
 
 const createWorkoutSchema = z.object({
@@ -100,9 +109,9 @@ export async function createWorkout(formData: FormData) {
   });
   if (data instanceof Error) return data;
 
-  const exerciseTypes = new Map(
+  const exerciseMetrics = new Map(
     db
-      .select({ id: Exercises.id, type: Exercises.type })
+      .select({ id: Exercises.id, metrics: Exercises.metrics })
       .from(Exercises)
       .where(
         inArray(
@@ -111,14 +120,14 @@ export async function createWorkout(formData: FormData) {
         ),
       )
       .all()
-      .map((e) => [e.id, e.type]),
+      .map((e) => [e.id, e.metrics]),
   );
 
   const values: Omit<typeof WorkoutExercises.$inferInsert, "workoutId">[] = [];
   for (const [index, { exerciseId, ...targets }] of data.steps.entries()) {
-    const type = exerciseTypes.get(exerciseId);
-    if (!type) return new Error("Unknown exercise");
-    values.push({ exerciseId, order: index, ...pickTargets(targets, type) });
+    const metrics = exerciseMetrics.get(exerciseId);
+    if (!metrics) return new Error("Unknown exercise");
+    values.push({ exerciseId, order: index, ...pickTargets(targets, metrics) });
   }
 
   const { error } = tryCatch(() =>

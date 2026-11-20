@@ -1,1 +1,0 @@
-ALTER TABLE `workout_exercises` ADD `target_weight` real;

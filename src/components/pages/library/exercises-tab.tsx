@@ -1,10 +1,12 @@
-import type { ExerciseType } from "@drizzle/schema";
+import type { ExerciseType, Metric } from "@drizzle/schema";
 import { createAsync, useAction } from "@solidjs/router";
-import { createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal, For } from "solid-js";
 import { createExercises, deleteExercise, getExercises } from "@/api";
 import type { Exercise } from "@/api/types";
 import { ExerciseRow } from "@/components/pages/library/exercise-row";
 import { LibraryToolbar } from "@/components/pages/library/library-toolbar";
+import { MetricPicker } from "@/components/pages/library/metric-picker";
+import { TargetPicker } from "@/components/pages/library/target-picker";
 import { CardList } from "@/components/ui/card-list";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FormDialog } from "@/components/ui/form-dialog";
@@ -13,12 +15,25 @@ import { SearchEmptyState } from "@/components/ui/search-empty-state";
 import { Select } from "@/components/ui/select";
 import { isBuiltIn } from "@/lib/built-in-exercises";
 import { createDebouncedSearch, filterByName } from "@/lib/debounced-search";
+import {
+  defaultMetricsByType,
+  type TargetField,
+  targetFieldsFor,
+} from "@/lib/exercise-targets";
 
 const typeOptions: { label: string; value: ExerciseType }[] = [
   { label: "Strength", value: "strength" },
   { label: "Cardio", value: "cardio" },
   { label: "Flexibility", value: "flexibility" },
 ];
+
+const startingTargetLabels: Record<TargetField, string> = {
+  targetSets: "Starting sets",
+  targetReps: "Starting reps",
+  targetWeightKg: "Starting weight",
+  targetDurationSeconds: "Starting duration",
+  targetDistanceM: "Starting distance",
+};
 
 export function ExercisesTab() {
   const { query, searchTerm, setQuery } = createDebouncedSearch();
@@ -27,6 +42,13 @@ export function ExercisesTab() {
   const removeExercise = useAction(deleteExercise);
   const [dialogOpen, setDialogOpen] = createSignal(false);
   const [exerciseToDelete, setExerciseToDelete] = createSignal<Exercise>();
+  const [exerciseType, setExerciseType] =
+    createSignal<ExerciseType>("strength");
+  const [exerciseMetrics, setExerciseMetrics] = createSignal<Metric[]>(
+    defaultMetricsByType.strength,
+  );
+
+  const startingTargetFields = () => targetFieldsFor(exerciseMetrics());
 
   const matchingExercises = createMemo(() =>
     filterByName(exercises(), searchTerm())?.toSorted(
@@ -34,7 +56,17 @@ export function ExercisesTab() {
     ),
   );
 
-  const openNewDialog = () => setDialogOpen(true);
+  function selectType(type: ExerciseType) {
+    setExerciseType(type);
+    setExerciseMetrics(defaultMetricsByType[type]);
+  }
+
+  function openNewDialog() {
+    selectType("strength");
+    setDialogOpen(true);
+  }
+
+  const handleTypeChange = (value: string) => selectType(value as ExerciseType);
   const handleDeleteClose = () => setExerciseToDelete(undefined);
 
   function handleConfirmDelete() {
@@ -77,9 +109,24 @@ export function ExercisesTab() {
         <Select
           name="type"
           label="Type"
-          defaultValue="strength"
+          value={exerciseType()}
+          onChange={handleTypeChange}
           options={typeOptions}
         />
+        <MetricPicker
+          name="metrics"
+          value={exerciseMetrics()}
+          onChange={setExerciseMetrics}
+        />
+        <For each={startingTargetFields()}>
+          {(field) => (
+            <TargetPicker
+              field={field}
+              label={startingTargetLabels[field]}
+              name={field}
+            />
+          )}
+        </For>
       </FormDialog>
       <ConfirmDialog
         open={!!exerciseToDelete()}

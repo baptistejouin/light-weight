@@ -2,6 +2,7 @@
 import {
   Exercises,
   exerciseTypes,
+  metrics,
   RecordExercises,
   Records,
   WorkoutExercises,
@@ -12,6 +13,7 @@ import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
 import { isBuiltIn } from "@/lib/built-in-exercises";
+import { pickTargets, sortMetrics } from "@/lib/exercise-targets";
 import { tryCatch } from "@/lib/try-catch";
 
 const getExerciseSchema = z.object({ id: z.uuid() });
@@ -28,17 +30,43 @@ export async function getExercises() {
   return db.select().from(Exercises).orderBy(asc(Exercises.name)).all();
 }
 
+// Pickers submit "0" when left untouched
+const unsetWhenZero = (value: unknown) =>
+  value === "" || value === "0" ? undefined : value;
+
+const optionalPositive = z.preprocess(
+  unsetWhenZero,
+  z.coerce.number().positive().optional(),
+);
+const optionalPositiveInt = z.preprocess(
+  unsetWhenZero,
+  z.coerce.number().int().positive().optional(),
+);
+
 const createExerciseSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   type: z.enum(exerciseTypes).exclude(["rest"]),
+  metrics: z.array(z.enum(metrics)).min(1, "Pick at least one thing to track"),
+  targetSets: optionalPositiveInt,
+  targetReps: optionalPositiveInt,
+  targetWeightKg: optionalPositive,
+  targetDurationSeconds: optionalPositiveInt,
+  targetDistanceM: optionalPositive,
 });
 
 export async function createExercises(formData: FormData) {
   await requireUserId();
 
-  const data = parseForm(createExerciseSchema, formData);
+  const data = parseForm(createExerciseSchema, {
+    ...Object.fromEntries(formData),
+    metrics: formData.getAll("metrics"),
+  });
   if (data instanceof Error) return data;
+
+  const exerciseMetrics = sortMetrics(data.metrics);
+  const defaultTargets = pickTargets(data, exerciseMetrics);
+  const hasDefaults = Object.values(defaultTargets).some(Boolean);
 
   const { error } = tryCatch(() =>
     db
@@ -47,6 +75,8 @@ export async function createExercises(formData: FormData) {
         name: data.name,
         description: data.description,
         type: data.type,
+        metrics: exerciseMetrics,
+        defaultTargets: hasDefaults ? defaultTargets : null,
       })
       .run(),
   );

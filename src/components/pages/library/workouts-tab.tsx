@@ -58,7 +58,7 @@ export function WorkoutsTab() {
       JSON.stringify(
         steps().map((s) => ({
           exerciseId: s.exerciseId,
-          ...pickTargets(s, s.exerciseType),
+          ...pickTargets(s, s.exerciseMetrics),
         })),
       ),
     );

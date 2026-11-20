@@ -19,6 +19,7 @@ export function StepBuilder(props: StepBuilderProps) {
         exerciseId: exercise.id,
         exerciseName: exercise.name,
         exerciseType: exercise.type,
+        exerciseMetrics: exercise.metrics,
       },
     ]);
   }

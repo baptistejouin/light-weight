@@ -9,5 +9,5 @@ export function parseForm<T extends z.ZodType>(
       ? Object.fromEntries(input.entries())
       : input;
   const { data, error } = schema.safeParse(value);
-  return error ? new Error(error.message) : data;
+  return error ? new Error(error.issues[0]?.message ?? error.message) : data;
 }

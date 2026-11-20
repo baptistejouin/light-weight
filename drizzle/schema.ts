@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import type { Targets } from "@/lib/exercise-targets";
 
 export const exerciseTypes = [
   "strength",
@@ -9,6 +10,16 @@ export const exerciseTypes = [
 ] as const;
 
 export type ExerciseType = (typeof exerciseTypes)[number];
+
+export const metrics = [
+  "sets",
+  "reps",
+  "weight",
+  "duration",
+  "distance",
+] as const;
+
+export type Metric = (typeof metrics)[number];
 
 export const Users = sqliteTable("users", {
   id: text("id")
@@ -34,6 +45,8 @@ export const Exercises = sqliteTable("exercises", {
   name: text("name").notNull(),
   description: text("description"),
   type: text("type", { enum: exerciseTypes }).notNull().default("strength"),
+  metrics: text("metrics", { mode: "json" }).$type<Metric[]>().notNull(),
+  defaultTargets: text("default_targets", { mode: "json" }).$type<Targets>(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),
@@ -79,6 +92,7 @@ export const WorkoutExercises = sqliteTable("workout_exercises", {
   targetReps: integer("target_reps"),
   targetDurationSeconds: integer("target_duration_seconds"),
   targetWeightKg: real("target_weight_kg"),
+  targetDistanceM: real("target_distance_m"),
 });
 
 // One entry per logged session: a workout or a single exercise

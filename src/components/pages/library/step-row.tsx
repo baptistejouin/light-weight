@@ -1,4 +1,4 @@
-import type { ExerciseType } from "@drizzle/schema";
+import type { ExerciseType, Metric } from "@drizzle/schema";
 import { For, Match, Switch } from "solid-js";
 import { StepLabel } from "@/components/pages/library/step-label";
 import { DurationPicker } from "@/components/ui/duration-picker";
@@ -18,6 +18,7 @@ export interface Step extends Targets {
   exerciseId: string;
   exerciseName: string;
   exerciseType: ExerciseType;
+  exerciseMetrics: Metric[];
 }
 
 interface StepRowProps {
@@ -31,7 +32,7 @@ interface StepRowProps {
 }
 
 export function StepRow(props: StepRowProps) {
-  const fields = () => targetFieldsFor(props.step.exerciseType);
+  const fields = () => targetFieldsFor(props.step.exerciseMetrics);
   const builtIn = () => isBuiltIn(props.step.exerciseType);
 
   const targetUpdater = (field: TargetField) => (value: number) =>
