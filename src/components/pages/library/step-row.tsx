@@ -9,6 +9,7 @@ import {
   type TargetField,
   type Targets,
   targetFieldsFor,
+  targetMin,
 } from "@/lib/exercise-targets";
 import type { DragSession } from "@/lib/long-press-drag";
 import { createSortableItem } from "@/lib/sortable-list";
@@ -92,7 +93,7 @@ export function StepRow(props: StepRowProps) {
                   <TargetPicker
                     field={field}
                     variant="compact"
-                    value={props.step[field] ?? 0}
+                    value={props.step[field] ?? targetMin(field)}
                     onChange={targetUpdater(field)}
                   />
                 )}

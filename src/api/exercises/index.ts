@@ -30,7 +30,7 @@ export async function getExercises() {
   return db.select().from(Exercises).orderBy(asc(Exercises.name)).all();
 }
 
-// Pickers submit "0" when left untouched
+// Weight can be picked as 0, which means no target
 const unsetWhenZero = (value: unknown) =>
   value === "" || value === "0" ? undefined : value;
 

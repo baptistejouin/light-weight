@@ -15,6 +15,7 @@ import {
   exerciseDefaultTargets,
   pickTargets,
   type Targets,
+  withMinimumTargets,
 } from "@/lib/exercise-targets";
 import { createSortableList } from "@/lib/sortable-list";
 import { cn } from "@/lib/utils";
@@ -74,7 +75,7 @@ export function StepBuilder(props: StepBuilderProps) {
     props.onChange([
       ...props.steps,
       {
-        ...defaultTargets(exercise),
+        ...withMinimumTargets(defaultTargets(exercise), exercise.metrics),
         key,
         exerciseId: exercise.id,
         exerciseName: exercise.name,

@@ -3,6 +3,7 @@ import { DurationPicker } from "@/components/ui/duration-picker";
 import { NumberPicker } from "@/components/ui/number-picker";
 import {
   type TargetField,
+  targetDurationMinSeconds,
   targetDurationUnits,
   targetPickerConfig,
 } from "@/lib/exercise-targets";
@@ -27,6 +28,7 @@ export function TargetPicker(props: TargetPickerProps) {
         <DurationPicker
           label={props.label ?? "Target duration"}
           units={targetDurationUnits}
+          min={targetDurationMinSeconds}
           name={props.name}
           value={props.value}
           onChange={props.onChange}

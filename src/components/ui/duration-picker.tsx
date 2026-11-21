@@ -17,6 +17,7 @@ interface DurationPickerProps {
   label: string;
   units: DurationUnit[];
   name?: string;
+  min?: number;
   value?: number;
   defaultValue?: number;
   onChange?: (seconds: number) => void;
@@ -34,7 +35,8 @@ const wheelValues: Record<DurationUnit, number[]> = {
 const formatTwoDigits = (value: number) => String(value).padStart(2, "0");
 
 export function DurationPicker(props: DurationPickerProps) {
-  const field = createFieldValue(props, 0);
+  const min = () => props.min ?? 0;
+  const field = createFieldValue(props, min());
   let popoverRef!: HTMLDivElement;
 
   const parts = () => splitDuration(field.value(), props.units);
@@ -44,7 +46,9 @@ export function DurationPicker(props: DurationPickerProps) {
     `0${durationUnits[smallestUnit()].narrow}`;
 
   function setPart(unit: DurationUnit, value: number) {
-    field.setValue(joinDuration({ ...parts(), [unit]: value }));
+    field.setValue(
+      Math.max(min(), joinDuration({ ...parts(), [unit]: value })),
+    );
   }
 
   function handleOpenChange(isOpen: boolean) {

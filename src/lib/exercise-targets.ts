@@ -44,20 +44,35 @@ export const targetDurationUnits: DurationUnit[] = [
 
 type NumericTargetField = Exclude<TargetField, "targetDurationSeconds">;
 
+export const targetDurationMinSeconds = 1;
+
 export const targetPickerConfig: Record<
   NumericTargetField,
-  { label: string; unit: string; max: number; step: number }
+  { label: string; unit: string; min: number; max: number; step: number }
 > = {
-  targetSets: { label: "Target sets", unit: "sets", max: 20, step: 1 },
-  targetReps: { label: "Target reps", unit: "reps", max: 100, step: 1 },
-  targetWeightKg: { label: "Target weight", unit: "kg", max: 300, step: 0.25 },
+  targetSets: { label: "Target sets", unit: "sets", min: 1, max: 20, step: 1 },
+  targetReps: { label: "Target reps", unit: "reps", min: 1, max: 100, step: 1 },
+  targetWeightKg: {
+    label: "Target weight",
+    unit: "kg",
+    min: 0,
+    max: 300,
+    step: 0.25,
+  },
   targetDistanceM: {
     label: "Target distance",
     unit: "m",
+    min: 100,
     max: 50000,
     step: 100,
   },
 };
+
+export function targetMin(field: TargetField) {
+  return field === "targetDurationSeconds"
+    ? targetDurationMinSeconds
+    : targetPickerConfig[field].min;
+}
 
 export function sortMetrics(selected: Metric[]) {
   return metrics.filter((metric) => selected.includes(metric));
@@ -75,6 +90,18 @@ export function pickTargets(
     targetFieldsFor(exerciseMetrics).map((field) => [
       field,
       targets[field] ?? undefined,
+    ]),
+  );
+}
+
+export function withMinimumTargets(
+  targets: Targets,
+  exerciseMetrics: Metric[],
+): Targets {
+  return Object.fromEntries(
+    targetFieldsFor(exerciseMetrics).map((field) => [
+      field,
+      targets[field] ?? (targetMin(field) || undefined),
     ]),
   );
 }

@@ -18,6 +18,7 @@ import { createDebouncedSearch, filterByName } from "@/lib/debounced-search";
 import {
   defaultMetricsByType,
   type TargetField,
+  type Targets,
   targetFieldsFor,
 } from "@/lib/exercise-targets";
 
@@ -48,7 +49,16 @@ export function ExercisesTab() {
     defaultMetricsByType.strength,
   );
 
+  const [startingTargets, setStartingTargets] = createSignal<Targets>({});
+
   const startingTargetFields = () => targetFieldsFor(exerciseMetrics());
+
+  // Untouched pickers show their minimum but submit nothing
+  const startingTargetName = (field: TargetField) =>
+    startingTargets()[field] === undefined ? undefined : field;
+
+  const startingTargetUpdater = (field: TargetField) => (value: number) =>
+    setStartingTargets((targets) => ({ ...targets, [field]: value }));
 
   const matchingExercises = createMemo(() =>
     filterByName(exercises(), searchTerm())?.toSorted(
@@ -59,6 +69,7 @@ export function ExercisesTab() {
   function selectType(type: ExerciseType) {
     setExerciseType(type);
     setExerciseMetrics(defaultMetricsByType[type]);
+    setStartingTargets({});
   }
 
   function openNewDialog() {
@@ -123,7 +134,9 @@ export function ExercisesTab() {
             <TargetPicker
               field={field}
               label={startingTargetLabels[field]}
-              name={field}
+              name={startingTargetName(field)}
+              value={startingTargets()[field]}
+              onChange={startingTargetUpdater(field)}
             />
           )}
         </For>
