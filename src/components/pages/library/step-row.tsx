@@ -1,16 +1,17 @@
 import type { ExerciseType, Metric } from "@drizzle/schema";
-import { For, Match, Switch } from "solid-js";
-import { StepLabel } from "@/components/pages/library/step-label";
-import { DurationPicker } from "@/components/ui/duration-picker";
-import { NumberPicker } from "@/components/ui/number-picker";
+import { For, type JSX, Show } from "solid-js";
+import { ExerciseIcon } from "@/components/pages/library/exercise-icon";
+import { TargetPicker } from "@/components/pages/library/target-picker";
+import { DashedOutline } from "@/components/ui/dashed-outline";
+import { SwipeActions } from "@/components/ui/swipe-actions";
 import { isBuiltIn } from "@/lib/built-in-exercises";
 import {
   type TargetField,
   type Targets,
-  targetDurationUnits,
   targetFieldsFor,
-  targetPickerConfig,
 } from "@/lib/exercise-targets";
+import type { DragSession } from "@/lib/long-press-drag";
+import { createSortableItem } from "@/lib/sortable-list";
 import { cn } from "@/lib/utils";
 
 export interface Step extends Targets {
@@ -23,96 +24,86 @@ export interface Step extends Targets {
 
 interface StepRowProps {
   step: Step;
-  index: number;
-  isFirst: boolean;
-  isLast: boolean;
+  dragging: boolean;
+  animated: boolean;
+  style?: JSX.CSSProperties;
+  onDragStart: (clientY: number) => DragSession;
   onMove: (direction: -1 | 1) => void;
+  onDuplicate: () => void;
   onRemove: () => void;
   onUpdate: (patch: Partial<Step>) => void;
 }
 
 export function StepRow(props: StepRowProps) {
+  let rowRef!: HTMLDivElement;
   const fields = () => targetFieldsFor(props.step.exerciseMetrics);
   const builtIn = () => isBuiltIn(props.step.exerciseType);
+
+  const actions = () => [
+    { label: "Duplicate", onSelect: props.onDuplicate },
+    { label: "Delete", variant: "danger" as const, onSelect: props.onRemove },
+  ];
 
   const targetUpdater = (field: TargetField) => (value: number) =>
     props.onUpdate({ [field]: value || undefined });
 
+  const { handleHandlePointerDown, handleHandleKeyDown } = createSortableItem({
+    item: () => rowRef,
+    onDragStart: (clientY) => props.onDragStart(clientY),
+    onMove: (direction) => props.onMove(direction),
+  });
+
   return (
     <li
+      style={props.style}
       class={cn(
-        "flex flex-col gap-1 rounded-xl border border-primary/20 p-2",
-        builtIn() && "border-dashed bg-gray-50",
+        "@container relative select-none rounded-xl [-webkit-touch-callout:none]",
+        props.dragging && "z-10 scale-[1.02] shadow-lg",
+        props.animated && "transition-transform duration-200 ease-out",
       )}
     >
-      <div class="flex items-center justify-between">
-        <p
-          class={cn(
-            "flex items-center gap-1 font-medium text-sm",
-            builtIn() && "text-black/60",
-          )}
-        >
-          <StepLabel
-            index={props.index}
-            name={props.step.exerciseName}
-            exerciseType={props.step.exerciseType}
-          />
-        </p>
-        <div class="flex gap-1">
+      <SwipeActions
+        actions={actions()}
+        class={cn("rounded-xl", !builtIn() && "border border-gray-200")}
+      >
+        <div ref={rowRef} class="flex items-center gap-3 @md:py-4 py-3 pr-3">
           <button
             type="button"
-            onClick={() => props.onMove(-1)}
-            disabled={props.isFirst}
-            aria-label="Move up"
-            class="disabled:opacity-30"
+            aria-label={`Reorder ${props.step.exerciseName}`}
+            data-reorder-handle
+            onPointerDown={handleHandlePointerDown}
+            onKeyDown={handleHandleKeyDown}
+            class="group flex cursor-grab items-center self-stretch pl-3 outline-none active:cursor-grabbing"
           >
-            ↑
+            <span class="flex size-10 items-center justify-center rounded-lg bg-gray-100 text-black outline-focus group-focus-visible:outline-2">
+              <ExerciseIcon
+                exerciseType={props.step.exerciseType}
+                class="size-5"
+              />
+            </span>
           </button>
-          <button
-            type="button"
-            onClick={() => props.onMove(1)}
-            disabled={props.isLast}
-            aria-label="Move down"
-            class="disabled:opacity-30"
-          >
-            ↓
-          </button>
-          <button
-            type="button"
-            onClick={props.onRemove}
-            aria-label="Remove step"
-          >
-            ×
-          </button>
-        </div>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <For each={fields()}>
-          {(field) => (
-            <Switch>
-              <Match when={field === "targetDurationSeconds"}>
-                <DurationPicker
-                  label="Target duration"
-                  units={targetDurationUnits}
-                  variant="compact"
-                  value={props.step.targetDurationSeconds ?? 0}
-                  onChange={targetUpdater("targetDurationSeconds")}
-                />
-              </Match>
-              <Match when={field !== "targetDurationSeconds" && field}>
-                {(numericField) => (
-                  <NumberPicker
-                    {...targetPickerConfig[numericField()]}
+          <div class="flex min-w-0 flex-1 @md:flex-row flex-col @md:items-center @md:gap-3 gap-2">
+            <span class="min-w-0 @md:flex-1 truncate font-medium text-base text-black">
+              {props.step.exerciseName}
+            </span>
+            <div class="flex @md:shrink-0 flex-wrap @md:flex-nowrap items-center gap-1">
+              <For each={fields()}>
+                {(field) => (
+                  <TargetPicker
+                    field={field}
                     variant="compact"
-                    value={props.step[numericField()] ?? 0}
-                    onChange={targetUpdater(numericField())}
+                    value={props.step[field] ?? 0}
+                    onChange={targetUpdater(field)}
                   />
                 )}
-              </Match>
-            </Switch>
-          )}
-        </For>
-      </div>
+              </For>
+            </div>
+          </div>
+        </div>
+      </SwipeActions>
+      <Show when={builtIn()}>
+        <DashedOutline />
+      </Show>
     </li>
   );
 }

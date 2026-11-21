@@ -1,7 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { toPlainDate } from "@/lib/date";
-import { formatDuration } from "@/lib/duration";
-import { targetDurationUnits } from "@/lib/exercise-targets";
 
 export function recordName(record: {
   title: string | null;
@@ -9,24 +7,6 @@ export function recordName(record: {
   workoutName: string | null;
 }) {
   return record.title || record.exerciseName || record.workoutName;
-}
-
-export function formatStepTargets(step: {
-  targetSets: number | null;
-  targetReps: number | null;
-  targetDurationSeconds: number | null;
-  targetWeightKg: number | null;
-}) {
-  const duration = formatDuration(
-    step.targetDurationSeconds,
-    targetDurationUnits,
-  );
-  const parts: string[] = [];
-  if (step.targetSets) parts.push(`${step.targetSets} sets`);
-  if (step.targetReps) parts.push(`${step.targetReps} reps`);
-  if (step.targetWeightKg) parts.push(`${step.targetWeightKg} kg`);
-  if (duration) parts.push(duration);
-  return parts.join(" · ");
 }
 
 export function formatDate(value: Date | string) {

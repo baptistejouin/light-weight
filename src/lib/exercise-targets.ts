@@ -1,6 +1,6 @@
 import type { ExerciseType, Metric } from "@drizzle/schema";
 import { metrics } from "@drizzle/schema";
-import type { DurationUnit } from "@/lib/duration";
+import { type DurationUnit, formatDuration } from "@/lib/duration";
 
 export type TargetField =
   | "targetSets"
@@ -77,6 +77,24 @@ export function pickTargets(
       targets[field] ?? undefined,
     ]),
   );
+}
+
+function formatTarget(field: TargetField, value: number | null | undefined) {
+  if (!value) return null;
+  if (field === "targetDurationSeconds") {
+    return formatDuration(value, targetDurationUnits);
+  }
+  return `${value} ${targetPickerConfig[field].unit}`;
+}
+
+export function formatTargets(
+  targets: NullableTargets,
+  exerciseMetrics: Metric[],
+) {
+  return targetFieldsFor(exerciseMetrics)
+    .map((field) => formatTarget(field, targets[field]))
+    .filter(Boolean)
+    .join(" · ");
 }
 
 export function exerciseDefaultTargets(exercise: {

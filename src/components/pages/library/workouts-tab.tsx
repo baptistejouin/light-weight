@@ -11,7 +11,7 @@ import type { Workout } from "@/api/types";
 import { LibraryToolbar } from "@/components/pages/library/library-toolbar";
 import { StepBuilder } from "@/components/pages/library/step-builder";
 import type { Step } from "@/components/pages/library/step-row";
-import { WorkoutCard } from "@/components/pages/library/workout-card";
+import { WorkoutRow } from "@/components/pages/library/workout-row";
 import { CardList } from "@/components/ui/card-list";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FormDialog } from "@/components/ui/form-dialog";
@@ -85,7 +85,7 @@ export function WorkoutsTab() {
           }
         >
           {(workout) => (
-            <WorkoutCard workout={workout} onDelete={setWorkoutToDelete} />
+            <WorkoutRow workout={workout} onDelete={setWorkoutToDelete} />
           )}
         </CardList>
       </div>
@@ -102,6 +102,7 @@ export function WorkoutsTab() {
           onChange={setSteps}
           exercises={exercises()}
           restExercise={restExercise()}
+          workouts={workouts()}
         />
       </FormDialog>
       <ConfirmDialog

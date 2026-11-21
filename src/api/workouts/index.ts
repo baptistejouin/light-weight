@@ -52,6 +52,7 @@ export async function getWorkouts() {
   const steps = db
     .select({
       workoutId: WorkoutExercises.workoutId,
+      exerciseId: WorkoutExercises.exerciseId,
       order: WorkoutExercises.order,
       targetSets: WorkoutExercises.targetSets,
       targetReps: WorkoutExercises.targetReps,
@@ -73,9 +74,11 @@ export async function getWorkouts() {
     .orderBy(asc(WorkoutExercises.order))
     .all();
 
+  const stepsByWorkout = Map.groupBy(steps, (s) => s.workoutId);
+
   return workouts.map((workout) => ({
     ...workout,
-    steps: steps.filter((s) => s.workoutId === workout.id),
+    steps: stepsByWorkout.get(workout.id) ?? [],
   }));
 }
 
