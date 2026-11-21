@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export const fieldLabelClass = "px-1 font-medium text-gray-500 text-sm";
 
 export const fieldSurfaceClass =
-  "h-10 rounded-lg bg-gray-100 px-3 outline-none ring-gray-300 transition-shadow placeholder:text-gray-400 focus-visible:ring-2";
+  "h-10 rounded-lg bg-gray-100 px-3 placeholder:text-gray-400";
 
 interface InputProps extends JSX.InputHTMLAttributes<HTMLInputElement> {
   name: string;

@@ -157,7 +157,7 @@ export function SwipeActions(props: SwipeActionsProps) {
               onClick={() => selectAction(action)}
               disabled={action.disabled}
               class={cn(
-                "w-20 cursor-pointer font-medium text-sm text-white disabled:opacity-45 disabled:cursor-not-allowed",
+                "w-20 cursor-pointer font-medium text-sm text-white -outline-offset-2 disabled:cursor-not-allowed disabled:opacity-45",
                 actionVariantClasses[action.variant ?? "neutral"],
               )}
             >

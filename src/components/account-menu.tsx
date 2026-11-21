@@ -13,7 +13,11 @@ export function AccountMenu() {
       placement="bottom-start"
       items={[{ label: "Logout", onSelect: () => doLogout() }]}
       trigger={(props) => (
-        <button {...props} aria-label="Account menu" class="cursor-pointer">
+        <button
+          {...props}
+          aria-label="Account menu"
+          class="cursor-pointer rounded-full"
+        >
           <Suspense fallback={<Avatar />}>
             <Avatar name={user()?.username} />
           </Suspense>

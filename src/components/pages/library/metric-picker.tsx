@@ -24,7 +24,7 @@ export function MetricPicker(props: MetricPickerProps) {
 
   const chipClass = (metric: Metric) =>
     cn(
-      "h-8 cursor-pointer rounded-md px-3 font-medium text-sm outline-none ring-gray-300 transition-colors focus-visible:ring-2",
+      "h-8 cursor-pointer rounded-md px-3 font-medium text-sm transition-colors",
       isSelected(metric)
         ? "bg-black text-white"
         : "bg-gray-100 text-gray-500 hover:bg-gray-200",

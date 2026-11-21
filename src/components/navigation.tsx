@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const navItemClass = (active: boolean) =>
   cn(
-    "flex h-nav w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-xs transition-colors",
+    "flex h-nav w-full cursor-pointer flex-col items-center justify-center gap-0.5 text-xs -outline-offset-2 transition-colors",
     active ? "font-semibold text-primary" : "text-gray-400 hover:text-gray-600",
   );
 

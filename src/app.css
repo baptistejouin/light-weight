@@ -7,6 +7,7 @@
 @theme {
   --font-sans: "Varela Round", sans-serif;
   --color-primary: #000;
+  --color-focus: var(--color-gray-300);
   --spacing-nav: 3.5rem;
 
   --color-activity-1: var(--color-green-200);
@@ -20,6 +21,12 @@
 html,
 body {
   overscroll-behavior: none;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+  }
 }
 
 /* iOS Safari skips @property initial values on lazily filled popovers */

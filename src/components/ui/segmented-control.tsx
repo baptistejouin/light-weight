@@ -30,7 +30,7 @@ export function SegmentedControl<T extends string>(
       props.value === item.value
         ? "text-black"
         : "text-gray-400 hover:text-gray-600",
-      "disabled:cursor-not-allowed disabled:text-gray-300",
+      "rounded-md disabled:cursor-not-allowed disabled:text-gray-300",
     );
 
   const indicatorStyle = () => ({

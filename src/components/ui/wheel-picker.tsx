@@ -119,7 +119,7 @@ export function WheelPicker(props: WheelPickerProps) {
         onScroll={handleScroll}
         onKeyDown={handleKeyDown}
         style={listStyle}
-        class="relative snap-y snap-mandatory overflow-y-auto overscroll-contain rounded-xl outline-none [scrollbar-width:none] focus-visible:ring-2 focus-visible:ring-primary"
+        class="relative snap-y snap-mandatory overflow-y-auto overscroll-contain rounded-xl [scrollbar-width:none]"
       >
         <For each={options()}>
           {(value) => (
