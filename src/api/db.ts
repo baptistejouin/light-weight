@@ -5,6 +5,7 @@ import {
   type BetterSQLite3Database,
   drizzle,
 } from "drizzle-orm/better-sqlite3";
+import { seedDevData } from "@/api/dev-seed";
 
 const sqlite = new Database("./drizzle/db.sqlite");
 
@@ -21,9 +22,13 @@ if (import.meta.env.DEV) {
     .where(eq(Users.username, DEV_USERNAME))
     .get();
 
-  if (!existing) {
-    db.insert(Users)
+  const devUser =
+    existing ??
+    db
+      .insert(Users)
       .values({ username: DEV_USERNAME, password: DEV_PASSWORD })
-      .run();
-  }
+      .returning()
+      .get();
+
+  seedDevData(db, devUser.id);
 }
