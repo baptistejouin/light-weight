@@ -36,11 +36,7 @@ export const defaultMetricsByType: Record<ExerciseType, Metric[]> = {
   rest: ["duration"],
 };
 
-export const targetDurationUnits: DurationUnit[] = [
-  "hours",
-  "minutes",
-  "seconds",
-];
+export const targetDurationUnits: DurationUnit[] = ["minutes", "seconds"];
 
 type NumericTargetField = Exclude<TargetField, "targetDurationSeconds">;
 

@@ -2,11 +2,36 @@ export type DurationUnit = "hours" | "minutes" | "seconds";
 
 export const durationUnits: Record<
   DurationUnit,
-  { seconds: number; max: number; label: string; narrow: string }
+  {
+    seconds: number;
+    max: number;
+    // Used when no larger unit is shown, so the unit absorbs the overflow
+    leadingMax: number;
+    label: string;
+    narrow: string;
+  }
 > = {
-  hours: { seconds: 3600, max: 23, label: "Hours", narrow: "h" },
-  minutes: { seconds: 60, max: 59, label: "Minutes", narrow: "m" },
-  seconds: { seconds: 1, max: 59, label: "Seconds", narrow: "s" },
+  hours: {
+    seconds: 3600,
+    max: 23,
+    leadingMax: 23,
+    label: "Hours",
+    narrow: "h",
+  },
+  minutes: {
+    seconds: 60,
+    max: 59,
+    leadingMax: 300,
+    label: "Minutes",
+    narrow: "m",
+  },
+  seconds: {
+    seconds: 1,
+    max: 59,
+    leadingMax: 300,
+    label: "Seconds",
+    narrow: "s",
+  },
 };
 
 export type DurationParts = Partial<Record<DurationUnit, number>>;

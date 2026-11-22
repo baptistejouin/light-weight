@@ -26,12 +26,6 @@ interface DurationPickerProps {
 
 const range = (max: number) => Array.from({ length: max + 1 }, (_, i) => i);
 
-const wheelValues: Record<DurationUnit, number[]> = {
-  hours: range(durationUnits.hours.max),
-  minutes: range(durationUnits.minutes.max),
-  seconds: range(durationUnits.seconds.max),
-};
-
 const formatTwoDigits = (value: number) => String(value).padStart(2, "0");
 
 export function DurationPicker(props: DurationPickerProps) {
@@ -41,6 +35,11 @@ export function DurationPicker(props: DurationPickerProps) {
 
   const parts = () => splitDuration(field.value(), props.units);
   const smallestUnit = () => props.units[props.units.length - 1];
+
+  function wheelValues(unit: DurationUnit) {
+    const { max, leadingMax } = durationUnits[unit];
+    return range(unit === props.units[0] ? leadingMax : max);
+  }
   const valueLabel = () =>
     formatDuration(field.value(), props.units) ??
     `0${durationUnits[smallestUnit()].narrow}`;
@@ -75,7 +74,7 @@ export function DurationPicker(props: DurationPickerProps) {
             <>
               <WheelPicker
                 label={durationUnits[unit].label}
-                values={wheelValues[unit]}
+                values={wheelValues(unit)}
                 value={parts()[unit] ?? 0}
                 onChange={(value) => setPart(unit, value)}
                 format={formatTwoDigits}
