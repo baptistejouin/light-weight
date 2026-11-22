@@ -3,8 +3,14 @@ import { For, type JSX, Show } from "solid-js";
 import { ExerciseIcon } from "@/components/pages/library/exercise-icon";
 import { TargetPicker } from "@/components/pages/library/target-picker";
 import { DashedOutline } from "@/components/ui/dashed-outline";
+import { Select } from "@/components/ui/select";
 import { SwipeActions } from "@/components/ui/swipe-actions";
 import {
+  type GoalField,
+  goalOf,
+  goalOptions,
+  hasGoalChoice,
+  otherGoal,
   type TargetField,
   type Targets,
   targetFieldsFor,
@@ -37,7 +43,8 @@ interface StepRowProps {
 
 export function StepRow(props: StepRowProps) {
   let rowRef!: HTMLDivElement;
-  const fields = () => targetFieldsFor(props.step.exerciseMetrics);
+  const goal = () => goalOf(props.step);
+  const fields = () => targetFieldsFor(props.step.exerciseMetrics, goal());
   const builtIn = () => props.step.exerciseBuiltIn;
 
   const actions = () => [
@@ -47,6 +54,11 @@ export function StepRow(props: StepRowProps) {
 
   const targetUpdater = (field: TargetField) => (value: number) =>
     props.onUpdate({ [field]: value || undefined });
+
+  function handleGoalChange(value: string) {
+    const next = value as GoalField;
+    props.onUpdate({ [otherGoal(next)]: undefined, [next]: targetMin(next) });
+  }
 
   const { handleHandlePointerDown, handleHandleKeyDown } = createSortableItem({
     item: () => rowRef,
@@ -88,6 +100,15 @@ export function StepRow(props: StepRowProps) {
               {props.step.exerciseName}
             </span>
             <div class="flex @md:shrink-0 flex-wrap @md:flex-nowrap items-center gap-1">
+              <Show when={hasGoalChoice(props.step.exerciseMetrics)}>
+                <Select
+                  label="Goal"
+                  variant="compact"
+                  options={goalOptions}
+                  value={goal()}
+                  onChange={handleGoalChange}
+                />
+              </Show>
               <For each={fields()}>
                 {(field) => (
                   <TargetPicker

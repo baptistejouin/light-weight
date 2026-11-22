@@ -14,13 +14,13 @@ interface SelectOption {
 }
 
 interface SelectProps {
-  name: string;
+  name?: string;
   label: string;
   options: SelectOption[];
   defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
-  variant?: Exclude<PopoverFieldVariant, "compact">;
+  variant?: PopoverFieldVariant;
   class?: string;
 }
 

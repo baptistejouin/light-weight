@@ -78,8 +78,39 @@ export function sortMetrics(selected: Metric[]) {
   return metrics.filter((metric) => selected.includes(metric));
 }
 
-export function targetFieldsFor(exerciseMetrics: Metric[]) {
-  return exerciseMetrics.map((metric) => targetFieldByMetric[metric]);
+// Both are logged to get a pace, but a target aims for only one of them
+export type GoalField = "targetDistanceM" | "targetDurationSeconds";
+
+export const goalOptions: { label: string; value: GoalField }[] = [
+  { label: "Distance", value: "targetDistanceM" },
+  { label: "Time", value: "targetDurationSeconds" },
+];
+
+export function hasGoalChoice(exerciseMetrics: Metric[]) {
+  return (
+    exerciseMetrics.includes("distance") && exerciseMetrics.includes("duration")
+  );
+}
+
+export function goalOf(targets: NullableTargets): GoalField {
+  return targets.targetDurationSeconds && !targets.targetDistanceM
+    ? "targetDurationSeconds"
+    : "targetDistanceM";
+}
+
+export function otherGoal(goal: GoalField): GoalField {
+  return goal === "targetDistanceM"
+    ? "targetDurationSeconds"
+    : "targetDistanceM";
+}
+
+export function targetFieldsFor(
+  exerciseMetrics: Metric[],
+  goal: GoalField = "targetDistanceM",
+) {
+  const fields = exerciseMetrics.map((metric) => targetFieldByMetric[metric]);
+  if (!hasGoalChoice(exerciseMetrics)) return fields;
+  return fields.filter((field) => field !== otherGoal(goal));
 }
 
 export function pickTargets(
@@ -87,7 +118,7 @@ export function pickTargets(
   exerciseMetrics: Metric[],
 ): Targets {
   return Object.fromEntries(
-    targetFieldsFor(exerciseMetrics).map((field) => [
+    targetFieldsFor(exerciseMetrics, goalOf(targets)).map((field) => [
       field,
       targets[field] ?? undefined,
     ]),
@@ -99,7 +130,7 @@ export function withMinimumTargets(
   exerciseMetrics: Metric[],
 ): Targets {
   return Object.fromEntries(
-    targetFieldsFor(exerciseMetrics).map((field) => [
+    targetFieldsFor(exerciseMetrics, goalOf(targets)).map((field) => [
       field,
       targets[field] ?? (targetMin(field) || undefined),
     ]),
@@ -118,7 +149,7 @@ export function formatTargets(
   targets: NullableTargets,
   exerciseMetrics: Metric[],
 ) {
-  return targetFieldsFor(exerciseMetrics)
+  return targetFieldsFor(exerciseMetrics, goalOf(targets))
     .map((field) => formatTarget(field, targets[field]))
     .filter(Boolean)
     .join(" · ");

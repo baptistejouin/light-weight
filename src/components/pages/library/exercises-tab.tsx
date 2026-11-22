@@ -1,6 +1,6 @@
 import type { ExerciseType, Metric } from "@drizzle/schema";
 import { createAsync, useAction } from "@solidjs/router";
-import { createMemo, createSignal, For } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 import { createExercises, deleteExercise, getExercises } from "@/api";
 import type { Exercise } from "@/api/types";
 import { ExerciseRow } from "@/components/pages/library/exercise-row";
@@ -16,9 +16,14 @@ import { Select } from "@/components/ui/select";
 import { createDebouncedSearch, filterByName } from "@/lib/debounced-search";
 import {
   defaultMetricsByType,
+  type GoalField,
+  goalOptions,
+  hasGoalChoice,
+  otherGoal,
   type TargetField,
   type Targets,
   targetFieldsFor,
+  targetMin,
 } from "@/lib/exercise-targets";
 
 const typeOptions: { label: string; value: ExerciseType }[] = [
@@ -49,8 +54,9 @@ export function ExercisesTab() {
   );
 
   const [startingTargets, setStartingTargets] = createSignal<Targets>({});
+  const [goal, setGoal] = createSignal<GoalField>("targetDistanceM");
 
-  const startingTargetFields = () => targetFieldsFor(exerciseMetrics());
+  const startingTargetFields = () => targetFieldsFor(exerciseMetrics(), goal());
 
   // Untouched pickers show their minimum but submit nothing
   const startingTargetName = (field: TargetField) =>
@@ -69,6 +75,18 @@ export function ExercisesTab() {
     setExerciseType(type);
     setExerciseMetrics(defaultMetricsByType[type]);
     setStartingTargets({});
+    setGoal("targetDistanceM");
+  }
+
+  // Submitted even when untouched, so the exercise keeps the chosen goal
+  function handleGoalChange(value: string) {
+    const next = value as GoalField;
+    setGoal(next);
+    setStartingTargets((targets) => ({
+      ...targets,
+      [otherGoal(next)]: undefined,
+      [next]: targets[next] ?? targetMin(next),
+    }));
   }
 
   function openNewDialog() {
@@ -128,6 +146,14 @@ export function ExercisesTab() {
           value={exerciseMetrics()}
           onChange={setExerciseMetrics}
         />
+        <Show when={hasGoalChoice(exerciseMetrics())}>
+          <Select
+            label="Goal"
+            options={goalOptions}
+            value={goal()}
+            onChange={handleGoalChange}
+          />
+        </Show>
         <For each={startingTargetFields()}>
           {(field) => (
             <TargetPicker

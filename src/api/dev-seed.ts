@@ -62,7 +62,7 @@ const seedExercises: SeedExercise[] = [
     name: "Running",
     type: "cardio",
     metrics: ["duration", "distance"],
-    defaultTargets: { targetDurationSeconds: 1800, targetDistanceM: 5000 },
+    defaultTargets: { targetDistanceM: 5000 },
   },
   {
     name: "Cycling",
@@ -116,7 +116,7 @@ const seedWorkouts: {
     description: "Low intensity, keep the heart rate steady",
     steps: [
       ["Rowing", { targetDurationSeconds: 600 }],
-      ["Running", { targetDurationSeconds: 1500, targetDistanceM: 4000 }],
+      ["Running", { targetDurationSeconds: 1500 }],
       ["Hamstring stretch", { targetSets: 2, targetDurationSeconds: 45 }],
     ],
   },
