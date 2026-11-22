@@ -1,13 +1,14 @@
+import { DragGesture } from "@use-gesture/vanilla";
 import {
   createEffect,
   createSignal,
   type JSX,
   onCleanup,
-  onMount,
   splitProps,
   untrack,
 } from "solid-js";
 import { type DialogProps, DialogRoot } from "@/components/ui/dialog";
+import { blockScroll, createGesture, dragConfig, isMouse } from "@/lib/gesture";
 import { cn } from "@/lib/utils";
 
 const DISMISS_DISTANCE_RATIO = 0.25;
@@ -15,8 +16,6 @@ const DISMISS_VELOCITY = 0.5;
 const SNAP_BACK_TRANSITION = "translate 300ms cubic-bezier(0.32,0.72,0,1)";
 const COVERED_SCALE = 0.94;
 const COVERED_LIFT_PX = 8;
-
-type DragState = "idle" | "pending" | "dragging" | "ignored";
 
 interface DrawerSheetProps {
   onClose: () => void;
@@ -30,13 +29,7 @@ function DrawerSheet(props: DrawerSheetProps) {
   let sheetRef!: HTMLDivElement;
   let scrollerRef!: HTMLDivElement;
 
-  let state: DragState = "idle";
-  let startX = 0;
-  let startY = 0;
   let offset = 0;
-  let lastY = 0;
-  let lastTime = 0;
-  let velocity = 0;
   let sheetHeight = 0;
 
   function setOffset(value: number, animate: boolean) {
@@ -55,48 +48,9 @@ function DrawerSheet(props: DrawerSheetProps) {
     return !scrollerRef.contains(target) || scrollerRef.scrollTop <= 0;
   }
 
-  function handleTouchStart(e: TouchEvent) {
-    if (e.touches.length !== 1 || !canStartDrag(e.target)) {
-      state = "ignored";
-      return;
-    }
-    const touch = e.touches[0];
-    state = "pending";
-    startX = touch.clientX;
-    startY = touch.clientY;
-    lastY = touch.clientY;
-    lastTime = e.timeStamp;
-    velocity = 0;
-  }
-
-  function handleTouchMove(e: TouchEvent) {
-    if (state === "idle" || state === "ignored") return;
-    const touch = e.touches[0];
-    const dx = touch.clientX - startX;
-    const dy = touch.clientY - startY;
-
-    if (state === "pending") {
-      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      state = dy > 0 && Math.abs(dy) > Math.abs(dx) ? "dragging" : "ignored";
-      if (state === "ignored") return;
-      sheetHeight = sheetRef.offsetHeight;
-    }
-
-    e.preventDefault();
-    const elapsed = e.timeStamp - lastTime;
-    if (elapsed > 0) velocity = (touch.clientY - lastY) / elapsed;
-    lastY = touch.clientY;
-    lastTime = e.timeStamp;
-    setOffset(Math.max(0, dy), false);
-  }
-
-  function handleTouchEnd() {
-    const wasDragging = state === "dragging";
-    state = "idle";
-    if (!wasDragging) return;
-
+  function finishDrag(flicked: boolean) {
     const pastDistance = offset > sheetHeight * DISMISS_DISTANCE_RATIO;
-    if ((pastDistance || velocity > DISMISS_VELOCITY) && !props.preventClose) {
+    if (pastDistance || flicked) {
       props.onDragProgress(undefined);
       props.onClose();
     } else {
@@ -104,20 +58,34 @@ function DrawerSheet(props: DrawerSheetProps) {
     }
   }
 
-  onMount(() => {
-    sheetRef.addEventListener("touchstart", handleTouchStart, {
-      passive: true,
-    });
-    sheetRef.addEventListener("touchmove", handleTouchMove, { passive: false });
-    sheetRef.addEventListener("touchend", handleTouchEnd);
-    sheetRef.addEventListener("touchcancel", handleTouchEnd);
-    onCleanup(() => {
-      sheetRef.removeEventListener("touchstart", handleTouchStart);
-      sheetRef.removeEventListener("touchmove", handleTouchMove);
-      sheetRef.removeEventListener("touchend", handleTouchEnd);
-      sheetRef.removeEventListener("touchcancel", handleTouchEnd);
-    });
-  });
+  createGesture(
+    () =>
+      new DragGesture(
+        sheetRef,
+        ({
+          first,
+          last,
+          canceled,
+          movement: [, my],
+          velocity: [, vy],
+          direction: [, dy],
+          event,
+          cancel,
+        }) => {
+          if (first) {
+            if (isMouse(event) || my < 0 || !canStartDrag(event.target)) {
+              return cancel();
+            }
+            sheetHeight = sheetRef.offsetHeight;
+          }
+          if (canceled) return;
+          blockScroll(event);
+          if (last) finishDrag(dy > 0 && vy > DISMISS_VELOCITY);
+          else setOffset(Math.max(0, my), false);
+        },
+        { ...dragConfig, threshold: 4, axis: "y" },
+      ),
+  );
 
   return (
     <div

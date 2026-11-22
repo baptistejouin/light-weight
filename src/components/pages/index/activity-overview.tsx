@@ -1,9 +1,11 @@
 import { Temporal } from "@js-temporal/polyfill";
+import { DragGesture } from "@use-gesture/vanilla";
 import { createMemo, createSignal, Match, Switch } from "solid-js";
 import { MonthView } from "@/components/pages/index/month-view";
 import { PeriodSummary } from "@/components/pages/index/period-summary";
 import { RecordList } from "@/components/pages/index/record-list";
 import { WeekView } from "@/components/pages/index/week-view";
+import { blockScroll, createGesture, dragConfig, isMouse } from "@/lib/gesture";
 import {
   earliestMonth,
   earliestWeek,
@@ -15,7 +17,8 @@ import {
   type RecordsByDay,
   recordsInDays,
 } from "@/lib/records";
-import { createHorizontalSwipe } from "@/lib/swipe";
+
+const swipeThreshold = 50;
 
 interface ActivityOverviewProps {
   timeScale: string;
@@ -58,10 +61,20 @@ export function ActivityOverview(props: ActivityOverviewProps) {
     setAnchor(next);
   }
 
-  createHorizontalSwipe(() => viewAreaRef, {
-    onSwipeLeft: () => shiftPeriod(1),
-    onSwipeRight: () => shiftPeriod(-1),
-  });
+  createGesture(
+    () =>
+      new DragGesture(
+        viewAreaRef,
+        ({ first, last, movement: [mx], event, cancel }) => {
+          if (first && isMouse(event)) return cancel();
+          blockScroll(event);
+          if (!last) return;
+          if (mx <= -swipeThreshold) shiftPeriod(1);
+          else if (mx >= swipeThreshold) shiftPeriod(-1);
+        },
+        { ...dragConfig, axis: "x" },
+      ),
+  );
 
   return (
     <div class="flex min-h-0 flex-1 flex-col gap-3">

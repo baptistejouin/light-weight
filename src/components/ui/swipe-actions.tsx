@@ -1,12 +1,6 @@
-import {
-  createEffect,
-  createSignal,
-  For,
-  type JSX,
-  onCleanup,
-  onMount,
-} from "solid-js";
-import { createAxisLock, listenHorizontalTouchDrag } from "@/lib/swipe";
+import { Gesture } from "@use-gesture/vanilla";
+import { createEffect, createSignal, For, type JSX, onCleanup } from "solid-js";
+import { blockScroll, createGesture, dragConfig } from "@/lib/gesture";
 import { cn } from "@/lib/utils";
 
 type SwipeActionVariant = "danger" | "neutral";
@@ -29,9 +23,6 @@ interface SwipeActionsProps {
   class?: string;
 }
 
-// Trackpad swipes have no "end" event, so settle after wheel events stop
-const wheelSettleDelay = 150;
-
 export function SwipeActions(props: SwipeActionsProps) {
   let containerRef!: HTMLDivElement;
   let actionsRef!: HTMLDivElement;
@@ -39,7 +30,6 @@ export function SwipeActions(props: SwipeActionsProps) {
   const [open, setOpen] = createSignal(false);
   const [dragOffset, setDragOffset] = createSignal<number | null>(null);
 
-  const mouseDrag = createAxisLock();
   let dragBase = 0;
   let suppressClick = false;
 
@@ -76,50 +66,31 @@ export function SwipeActions(props: SwipeActionsProps) {
     setDragOffset(null);
   }
 
-  // iOS Safari cancels pointer events when it claims a touch for scrolling
-  onMount(() => {
-    const stopTouchDrag = listenHorizontalTouchDrag(contentRef, {
-      onStart: startDrag,
-      onMove: moveDrag,
-      onEnd: endDrag,
-    });
-
-    let wheelSettle: ReturnType<typeof setTimeout> | undefined;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      setDragOffset(clampOffset(offset() - e.deltaX));
-      clearTimeout(wheelSettle);
-      wheelSettle = setTimeout(endDrag, wheelSettleDelay);
-    };
-
-    contentRef.addEventListener("wheel", onWheel, { passive: false });
-    onCleanup(() => {
-      stopTouchDrag();
-      clearTimeout(wheelSettle);
-      contentRef.removeEventListener("wheel", onWheel);
-    });
-  });
-
-  function handlePointerDown(e: PointerEvent) {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
-    mouseDrag.start(e.clientX, e.clientY);
-    startDrag();
-  }
-
-  function handlePointerMove(e: PointerEvent) {
-    if (e.pointerType !== "mouse") return;
-    const dx = mouseDrag.move(e.clientX, e.clientY);
-    if (dx === null) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    moveDrag(dx);
-  }
-
-  function handlePointerUp(e: PointerEvent) {
-    if (e.pointerType !== "mouse") return;
-    mouseDrag.end();
-    endDrag();
-  }
+  createGesture(
+    () =>
+      new Gesture(
+        contentRef,
+        {
+          onDrag: ({ first, last, movement: [mx], event }) => {
+            if (first) startDrag();
+            blockScroll(event);
+            moveDrag(mx);
+            if (last) endDrag();
+          },
+          onWheel: ({ first, last, movement: [mx], event }) => {
+            if (first) startDrag();
+            event.preventDefault();
+            moveDrag(-mx);
+            if (last) endDrag();
+          },
+        },
+        {
+          eventOptions: dragConfig.eventOptions,
+          drag: { ...dragConfig, axis: "x" },
+          wheel: { axis: "x" },
+        },
+      ),
+  );
 
   // The click ending a mouse drag must not close the row it just opened
   function handleClickCapture(e: MouseEvent) {
@@ -168,10 +139,6 @@ export function SwipeActions(props: SwipeActionsProps) {
       </div>
       <div
         ref={contentRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
         on:click={{ handleEvent: handleClickCapture, capture: true }}
         style={contentStyle()}
         class={cn(
