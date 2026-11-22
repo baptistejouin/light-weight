@@ -10,7 +10,6 @@ import { PlusIcon, TimerIcon } from "@/components/icons";
 import { StepPicker } from "@/components/pages/library/step-picker";
 import { type Step, StepRow } from "@/components/pages/library/step-row";
 import { Button } from "@/components/ui/button";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import {
   exerciseDefaultTargets,
   pickTargets,
@@ -26,7 +25,6 @@ interface StepBuilderProps {
   steps: Step[];
   onChange: (steps: Step[]) => void;
   exercises?: Exercise[];
-  restExercise?: Exercise;
   workouts?: Workout[];
 }
 
@@ -58,7 +56,7 @@ export function StepBuilder(props: StepBuilderProps) {
     [
       ...new Set(
         savedSteps()
-          .filter((s) => !isBuiltIn(s.exerciseType))
+          .filter((s) => !s.exerciseBuiltIn)
           .map((s) => s.exerciseId),
       ),
     ].slice(0, recentLimit),
@@ -80,6 +78,7 @@ export function StepBuilder(props: StepBuilderProps) {
         exerciseId: exercise.id,
         exerciseName: exercise.name,
         exerciseType: exercise.type,
+        exerciseBuiltIn: exercise.builtIn,
         exerciseMetrics: exercise.metrics,
       },
     ]);
@@ -93,8 +92,11 @@ export function StepBuilder(props: StepBuilderProps) {
 
   const openPicker = () => setPickerOpen(true);
 
+  const restExercise = () => props.exercises?.find((e) => e.type === "rest");
+
   function addRest() {
-    if (props.restExercise) addStep(props.restExercise);
+    const rest = restExercise();
+    if (rest) addStep(rest);
   }
 
   function duplicateStep(index: number) {
@@ -176,7 +178,7 @@ export function StepBuilder(props: StepBuilderProps) {
           <PlusIcon aria-hidden="true" />
           Add exercise
         </Button>
-        <Show when={props.restExercise}>
+        <Show when={restExercise()}>
           <Button type="button" variant="dashed" onClick={addRest}>
             <TimerIcon aria-hidden="true" />
             Rest

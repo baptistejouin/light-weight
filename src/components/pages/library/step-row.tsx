@@ -4,7 +4,6 @@ import { ExerciseIcon } from "@/components/pages/library/exercise-icon";
 import { TargetPicker } from "@/components/pages/library/target-picker";
 import { DashedOutline } from "@/components/ui/dashed-outline";
 import { SwipeActions } from "@/components/ui/swipe-actions";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import {
   type TargetField,
   type Targets,
@@ -20,6 +19,7 @@ export interface Step extends Targets {
   exerciseId: string;
   exerciseName: string;
   exerciseType: ExerciseType;
+  exerciseBuiltIn: boolean;
   exerciseMetrics: Metric[];
 }
 
@@ -38,7 +38,7 @@ interface StepRowProps {
 export function StepRow(props: StepRowProps) {
   let rowRef!: HTMLDivElement;
   const fields = () => targetFieldsFor(props.step.exerciseMetrics);
-  const builtIn = () => isBuiltIn(props.step.exerciseType);
+  const builtIn = () => props.step.exerciseBuiltIn;
 
   const actions = () => [
     { label: "Duplicate", onSelect: props.onDuplicate },

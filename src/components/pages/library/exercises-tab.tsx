@@ -13,7 +13,6 @@ import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { SearchEmptyState } from "@/components/ui/search-empty-state";
 import { Select } from "@/components/ui/select";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import { createDebouncedSearch, filterByName } from "@/lib/debounced-search";
 import {
   defaultMetricsByType,
@@ -62,7 +61,7 @@ export function ExercisesTab() {
 
   const matchingExercises = createMemo(() =>
     filterByName(exercises(), searchTerm())?.toSorted(
-      (a, b) => Number(isBuiltIn(b.type)) - Number(isBuiltIn(a.type)),
+      (a, b) => Number(b.builtIn) - Number(a.builtIn),
     ),
   );
 

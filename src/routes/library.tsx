@@ -1,11 +1,6 @@
 import { type RouteDefinition, useSearchParams } from "@solidjs/router";
 import { Match, Switch } from "solid-js";
-import {
-  getExercises,
-  getOrCreateRestExercise,
-  getUser,
-  getWorkouts,
-} from "@/api";
+import { getExercises, getUser, getWorkouts } from "@/api";
 import { ExercisesTab } from "@/components/pages/library/exercises-tab";
 import { WorkoutsTab } from "@/components/pages/library/workouts-tab";
 import { PageHeader } from "@/components/ui/page-header";
@@ -16,7 +11,6 @@ export const route = {
     getUser();
     getWorkouts();
     getExercises();
-    getOrCreateRestExercise();
   },
 } satisfies RouteDefinition;
 

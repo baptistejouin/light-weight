@@ -9,12 +9,11 @@ const queries = {
   getExercise: query(exercises.getExercise, "exercise"),
   getExercises: query(exercises.getExercises, "exercises"),
   getWorkouts: query(workouts.getWorkouts, "workouts"),
-  getOrCreateRestExercise: query(
-    workouts.getOrCreateRestExercise,
-    "restExercise",
-  ),
   getRecords: query(records.getRecords, "records"),
 };
+
+export const { getUser, getExercise, getExercises, getWorkouts, getRecords } =
+  queries;
 
 const actions = {
   validateAndLogin: action(auth.validateAndLogin, "validateAndLogin"),
@@ -27,14 +26,6 @@ const actions = {
   deleteRecord: action(records.deleteRecord, "deleteRecord"),
 };
 
-export const {
-  getUser,
-  getExercise,
-  getExercises,
-  getWorkouts,
-  getOrCreateRestExercise,
-  getRecords,
-} = queries;
 export const {
   validateAndLogin,
   logout,

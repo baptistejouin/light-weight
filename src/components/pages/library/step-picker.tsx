@@ -8,7 +8,6 @@ import { DrawerDialog } from "@/components/ui/drawer-dialog";
 import { SearchEmptyState } from "@/components/ui/search-empty-state";
 import { SearchField } from "@/components/ui/search-field";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import { filterByName } from "@/lib/debounced-search";
 
 type TypeFilter = Exclude<ExerciseType, "rest"> | "all";
@@ -34,7 +33,7 @@ export function StepPicker(props: StepPickerProps) {
   const [typeFilter, setTypeFilter] = createSignal<TypeFilter>("all");
 
   const pickable = createMemo(
-    () => props.exercises?.filter((e) => !isBuiltIn(e.type)) ?? [],
+    () => props.exercises?.filter((e) => !e.builtIn) ?? [],
   );
 
   const matches = createMemo(() => {

@@ -2,7 +2,6 @@ import { For, Show } from "solid-js";
 import type { Workout } from "@/api/types";
 import { CardHeader } from "@/components/ui/card";
 import { SwipeDeleteRow } from "@/components/ui/swipe-delete-row";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import { formatTargets } from "@/lib/exercise-targets";
 import { pluralize } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -30,7 +29,7 @@ export function WorkoutRow(props: WorkoutRowProps) {
               <span
                 class={cn(
                   "truncate text-black/70",
-                  isBuiltIn(step.exerciseType) && "text-gray-400",
+                  step.exerciseBuiltIn && "text-gray-400",
                 )}
               >
                 {step.exerciseName}

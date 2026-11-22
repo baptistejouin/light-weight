@@ -1,12 +1,6 @@
 import { createAsync, useAction } from "@solidjs/router";
 import { createMemo, createSignal } from "solid-js";
-import {
-  createWorkout,
-  deleteWorkout,
-  getExercises,
-  getOrCreateRestExercise,
-  getWorkouts,
-} from "@/api";
+import { createWorkout, deleteWorkout, getExercises, getWorkouts } from "@/api";
 import type { Workout } from "@/api/types";
 import { LibraryToolbar } from "@/components/pages/library/library-toolbar";
 import { StepBuilder } from "@/components/pages/library/step-builder";
@@ -24,7 +18,6 @@ export function WorkoutsTab() {
   const { query, searchTerm, setQuery } = createDebouncedSearch();
   const workouts = createAsync(() => getWorkouts());
   const exercises = createAsync(() => getExercises());
-  const restExercise = createAsync(() => getOrCreateRestExercise());
 
   const submitWorkout = useAction(createWorkout);
   const removeWorkout = useAction(deleteWorkout);
@@ -101,7 +94,6 @@ export function WorkoutsTab() {
           steps={steps()}
           onChange={setSteps}
           exercises={exercises()}
-          restExercise={restExercise()}
           workouts={workouts()}
         />
       </FormDialog>

@@ -47,6 +47,7 @@ export const Exercises = sqliteTable("exercises", {
   type: text("type", { enum: exerciseTypes }).notNull().default("strength"),
   metrics: text("metrics", { mode: "json" }).$type<Metric[]>().notNull(),
   defaultTargets: text("default_targets", { mode: "json" }).$type<Targets>(),
+  builtIn: integer("built_in", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .$defaultFn(() => new Date())
     .notNull(),

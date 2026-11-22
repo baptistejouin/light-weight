@@ -12,7 +12,6 @@ import { z } from "zod";
 import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
-import { isBuiltIn } from "@/lib/built-in-exercises";
 import { pickTargets, sortMetrics } from "@/lib/exercise-targets";
 import { tryCatch } from "@/lib/try-catch";
 
@@ -94,7 +93,7 @@ export async function deleteExercise(id: string) {
     .where(eq(Exercises.id, id))
     .get();
   if (!exercise) return new Error("Exercise not found");
-  if (isBuiltIn(exercise.type)) {
+  if (exercise.builtIn) {
     return new Error(`"${exercise.name}" is built-in and can't be deleted`);
   }
 

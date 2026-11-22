@@ -11,31 +11,8 @@ import { z } from "zod";
 import { requireUserId } from "@/api/auth/session";
 import { db } from "@/api/db";
 import { parseForm } from "@/api/utils";
-import { defaultMetricsByType, pickTargets } from "@/lib/exercise-targets";
+import { pickTargets } from "@/lib/exercise-targets";
 import { tryCatch } from "@/lib/try-catch";
-
-const REST_EXERCISE_NAME = "Rest";
-
-export async function getOrCreateRestExercise() {
-  await requireUserId();
-
-  const existing = db
-    .select()
-    .from(Exercises)
-    .where(eq(Exercises.type, "rest"))
-    .get();
-  if (existing) return existing;
-
-  db.insert(Exercises)
-    .values({
-      name: REST_EXERCISE_NAME,
-      type: "rest",
-      metrics: defaultMetricsByType.rest,
-    })
-    .run();
-
-  return db.select().from(Exercises).where(eq(Exercises.type, "rest")).get();
-}
 
 export async function getWorkouts() {
   const userId = await requireUserId();
@@ -61,6 +38,7 @@ export async function getWorkouts() {
       targetDistanceM: WorkoutExercises.targetDistanceM,
       exerciseName: Exercises.name,
       exerciseType: Exercises.type,
+      exerciseBuiltIn: Exercises.builtIn,
       exerciseMetrics: Exercises.metrics,
     })
     .from(WorkoutExercises)

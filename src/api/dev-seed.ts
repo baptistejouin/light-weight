@@ -168,7 +168,7 @@ function daysAgoAt(days: number, hour: number) {
 }
 
 export function seedDevData(db: BetterSQLite3Database, userId: string) {
-  // The app creates Rest on its own, so only real exercises mean data exists
+  // Rest is seeded by a migration, so only other exercises mean data exists
   const hasData = db
     .select({ id: Exercises.id })
     .from(Exercises)
